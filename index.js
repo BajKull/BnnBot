@@ -1,3 +1,11 @@
+var express = require('express');
+var app = express();
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Our app is running on port ${ PORT }`);
+});
+
 const Discord = require('discord.js')
 const { prefix, token } = require('./config.json')
 const client = new Discord.Client()
