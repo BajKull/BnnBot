@@ -11,9 +11,13 @@ const showInfo = (user, room) => {
   const player = getUser(user.id)
 
   if(player) 
-    room.send(`${user} is level ${player.level} with ${player.wins} wins, ${player.losses} losses and is on a ${player.winstreak} winstreak`)
+    room.send(```${user}
+    level: ${player.level} 
+    wins: ${player.wins}
+    losses: ${player.losses}
+    winstreak: ${player.winstreak}```)
   else 
-    room.send(`${user} you must first choose your class to join the fighting game. To do so type "bnn class ...". Available classess are: ${getClassNames()}`)
+    room.send(`${user} you must first choose your class to join the fighting game. To do so type *bnn class ...*. Available classess are: *${getClassNames()}*`)
 }
 
 const fight = (player1, player2, room) => {
@@ -22,9 +26,9 @@ const fight = (player1, player2, room) => {
   const fighter2 = getUser(player2.id)
 
   if(!fighter1)
-    room.send(`${player1} you idiot, choose a class first. To do so type "bnn class ...". Available classess are ${getClassNames()}.`)
+    room.send(`${player1} you idiot, choose a class first. To do so type *bnn class ...*. Available classess are *${getClassNames()}*.`)
   if(!fighter2)
-    room.send(`${player2} is not a member of this fighting community. Tell this idiot to choose his class. To do so type "bnn class ...". Available classess are ${getClassNames()}.`)
+    room.send(`${player2} is not a member of this fighting community. Tell this idiot to choose his class. To do so type *bnn class ...*. Available classess are *${getClassNames()}*.`)
 
   if(fighter1 && fighter2) {
     const user1 = {
@@ -118,7 +122,7 @@ const isInFight = (player) => {
 }
 
 const getClassNames = () => {
-  return classes.reduce((acc, name) => { return acc.concat(' ' + name)})
+  return classes.reduce((acc, name) => { return acc.concat(', ' + name)})
 }
 
 const fightAction = (message, user, room) => {
@@ -247,7 +251,7 @@ const fightAction = (message, user, room) => {
       }
       else if(message === 'defend') {
         if(activeFights[fightIndex][playerIndex].defends > 1) {
-          room.send(`${user}, stop being a coward... take your sword and start attacking! Defend limit reached. You loose your turn.`)
+          room.send(`${user}, stop being a coward... take your sword and start attacking! Defend limit reached. You **loose** your **turn**.`)
           fightOn = false
           changePlayer(fightIndex, playerIndex, room)
         }
@@ -430,8 +434,19 @@ const displayClassStats = (className, room) => {
     room.send(`Mage, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to cast a fireball, dealing 30-70 opponent's piercing damage.`)
   else if(name === 'druid')
     room.send(`Druid, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to heal for 25-65.`)
+  else if(name === 'all')
+    room.send(```
+            warrior      mage      driud      rogue
+attack        20          20        20         20
+armor         15          25        10         10
+health        230         130       100        200
+
+special      20-40%      20-40%    20-40%     20-40%
+             reduce      deal      heal       dodge
+             armor       dmg       up         attack
+```)
   else
-    room.send(`Invalid classname. Type bnn classinfo class. Available classes: ${getClassNames()}`)
+    room.send(`Invalid classname. Type bnn classinfo class. Available classes: *${getClassNames()}*`)
 }
 
 const createCanvas = (fightIndex, room) => {
@@ -520,7 +535,12 @@ async function loadAvatars(user1, user2, fightIndex) {
 }
 
 const showHelp = (room) => {
-  room.send(`Available commands are: bnn help, bnn class, bnn classinfo, bnn fight, bnn info`)
+  room.send(```Available commands: 
+  bnn help
+  bnn class
+  bnn classinfo
+  bnn fight
+  bnn info```)
 }
 
 const createReward = (user, room, fightIndex) => {
