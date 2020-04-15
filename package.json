@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Bot for Discord",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
   "author": "Dawid Banachowski",
   "license": "ISC",
   "dependencies": {
