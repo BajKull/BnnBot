@@ -485,7 +485,7 @@ const createCanvas = (fightIndex, room) => {
   context.fillStyle = '#ffffff'
   context.fillText
   (`
-  :crossed_swords:  ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}
+  ⚔️  ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}
   🛡️  ${activeFights[fightIndex][0].stats.armor}
   ❤️  ${activeFights[fightIndex][0].stats.health}
  `, 25, 150)
