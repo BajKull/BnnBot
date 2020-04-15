@@ -6,6 +6,7 @@ const { showInfo, fight, isInFight, fightAction, displayClassStats, showHelp } =
 const { updateUser } = require('./userlist.js')
 
 client.once('ready', () => {
+  client.user.setActivity("bnn help")
   console.log("ready")
 })
 
