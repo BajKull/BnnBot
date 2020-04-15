@@ -131,6 +131,7 @@ const fightAction = (message, user, room) => {
   const fightIndex = activeFights.indexOf(fight)
   const p = activeFights[fightIndex].find(fighter => fighter.id === user.id)
   const playerIndex = activeFights[fightIndex].indexOf(p)
+  const opIndex = (playerIndex === 0) ? 1 : 0
 
   if(activeFights[fightIndex][playerIndex].phase === 'opponent')
     room.send(`${user} you idiot, wait your turn!`)
@@ -153,7 +154,7 @@ const fightAction = (message, user, room) => {
         if(correct === 3) correct = 'd'
         // console.log(correct)
         clearTimeout(activeFights[fightIndex][2].timer)
-        activeFights[fightIndex][2].timer = setTimeout(() => abortFight(fightIndex, room, errorCode = 2), 60000)
+        activeFights[fightIndex][2].timer = setTimeout(() => abortFight(activeFights.length - 1, room, 2), 60000)
         activeFights[fightIndex][playerIndex].phase = 'answer'
         activeFights[fightIndex][playerIndex].correctAnswer = correct
         room.send(`${user}, ${body.results[0].question.replace(/&quot;/gi, '')} \n${showAnswers.reduce((acc = '', ans) => { return acc.concat('\n' + ans)})}`)
@@ -171,7 +172,7 @@ const fightAction = (message, user, room) => {
     else {
       room.send(`${user}, type **easy**, **medium** or **hard**. There are no other difficulty levels`)
       clearTimeout(activeFights[fightIndex][2].timer)
-      activeFights[fightIndex][2].timer = setTimeout(() => abortFight(fightIndex, room, errorCode = 2), 45000)
+      activeFights[fightIndex][2].timer = setTimeout(() => abortFight(activeFights.length - 1, room, 2), 45000)
     }
   }
 
@@ -185,14 +186,17 @@ const fightAction = (message, user, room) => {
       else {
         room.send(`Incorrect! Correct answer: ${activeFights[fightIndex][playerIndex].correctAnswer.toUpperCase()}`) 
         activeFights[fightIndex][playerIndex].phase = 'opponent'
-        changePlayer(fightIndex, playerIndex, room)
+        changePlayer(fightIndex, playerIndex, room, false)
       }
     }
-    else
+    else 
       room.send(`${user}, little brain freeze? Type **a**, **b**, **c** or **d**. There are no other answers`)
     
     clearTimeout(activeFights[fightIndex][2].timer)
-    activeFights[fightIndex][2].timer = setTimeout(() => abortFight(fightIndex, room, errorCode = 2), 60000)
+    if(activeFights[fightIndex][2].round < 4)
+      activeFights[fightIndex][2].timer = setTimeout(() => abortFight(activeFights.length - 1, room, 2), 60000)
+    else
+      activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, playerIndex, room, true), 30000)
   }
 
   else if(activeFights[fightIndex][playerIndex].phase === 'reward') {
@@ -210,19 +214,18 @@ const fightAction = (message, user, room) => {
         activeFights[fightIndex][playerIndex].necklace = activeFights[fightIndex][2].reward.necklace
       }
       activeFights[fightIndex][playerIndex].phase = 'opponent'
-      changePlayer(fightIndex, playerIndex, room)
+      changePlayer(fightIndex, playerIndex, room, false)
     }
     else
       room.send(`${user}, don't be too greedy... choose your reward by typing **1**, **2** or **3**`)
     
     clearTimeout(activeFights[fightIndex][2].timer)
-    activeFights[fightIndex][2].timer = setTimeout(() => abortFight(fightIndex, room, errorCode = 2), 60000)
+    activeFights[fightIndex][2].timer = setTimeout(() => abortFight(activeFights.length - 1, room, 2), 60000)
   }
 
   else if(activeFights[fightIndex][playerIndex].phase === 'fight') {
     let fightOn = true
     if(message === 'attack' || message === 'defend' || message === 'rest') {
-      const opIndex = (playerIndex === 0) ? 1 : 0
       if(message === 'attack') {
         if(activeFights[fightIndex][opIndex].class === 'rogue' && Math.floor(Math.random() * 100) < activeFights[fightIndex][playerIndex].stats.special + Math.floor(Math.random() * 20)) {
           const opponent = room.client.users.resolve(activeFights[fightIndex][opIndex].id)
@@ -252,7 +255,7 @@ const fightAction = (message, user, room) => {
         if(activeFights[fightIndex][playerIndex].defends > 1) {
           room.send(`${user}, stop being a coward... take your sword and start attacking! Defend limit reached. You **loose** your **turn**.`)
           fightOn = false
-          changePlayer(fightIndex, playerIndex, room)
+          changePlayer(fightIndex, playerIndex, room, false)
         }
         else {
           activeFights[fightIndex][playerIndex].defends ++
@@ -303,64 +306,74 @@ const fightAction = (message, user, room) => {
             room.send(`In addition ${user}, summoned a duck which **healed** him for **${heal}**, which gives him **${health} health** in total!`)
             if(health > 500) {
               finishFight(fightIndex, playerIndex, user, room)
-              fightOn = false
             }
           }
         }
-        changePlayer(fightIndex, playerIndex, room)
-        clearTimeout(activeFights[fightIndex][2].timer)
-        activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, playerIndex, room), 30000)
+        changePlayer(fightIndex, playerIndex, room, false)
       }
 
     }
     else {
       room.send(`${user}, didn't anyone teach you how to fight? Type **attack**, **defend** or **rest**.`)
       clearTimeout(activeFights[fightIndex][2].timer)
-      activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, playerIndex, room), 30000)
+      activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, opIndex, room, true), 30000)
     }
   }
   
 }
 
-const changePlayer = (fightIndex, playerIndex, room) => {
-  const round = activeFights[fightIndex][2].round
-  const opIndex = (playerIndex === 0) ? 1 : 0
-  let nextPlayer = room.client.users.resolve(activeFights[fightIndex][opIndex].id)
-
-  if(round > 3) {
-    activeFights[fightIndex][opIndex].phase = 'fight'
-    activeFights[fightIndex][playerIndex].phase = 'opponent'
-    room.send(`${nextPlayer}, it's your turn to act! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds!`)
-    createCanvas(fightIndex, room)
+const changePlayer = (fightIndex, playerIndex, room, afk) => {
+  if(afk){
+    activeFights[fightIndex][2].afkActions ++
+    room.send(`Too slow! Skipping turn.`)
   }
+  else
+    activeFights[fightIndex][2].afkActions = 0
+  if(activeFights[fightIndex][2].afkActions > 2)
+    abortFight(fightIndex, room, 3)
   else {
-    if(opIndex === 1) {
-      activeFights[fightIndex][opIndex].phase = 'difficulty'
-      room.send(`${nextPlayer}, choose the difficulty level of question by typing: **easy**, **medium** or **hard**. The harder the question, the better the reward`)
+    const round = activeFights[fightIndex][2].round
+    const opIndex = (playerIndex === 0) ? 1 : 0
+    let nextPlayer = room.client.users.resolve(activeFights[fightIndex][opIndex].id)
+
+    if(round > 3) {
+      activeFights[fightIndex][opIndex].phase = 'fight'
+      activeFights[fightIndex][playerIndex].phase = 'opponent'
+      room.send(`${nextPlayer}, it's your turn to act! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds!`)
+      createCanvas(fightIndex, room)
+      clearTimeout(activeFights[fightIndex][2].timer)
+      activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, opIndex, room, true), 30000)
     }
     else {
-      activeFights[fightIndex][opIndex].phase = 'difficulty'
-      activeFights[fightIndex][2].round ++
-      if(activeFights[fightIndex][2].round > 3) {
-        setStats(fightIndex)
-        const startingPlayer = Math.floor(Math.random() * 2)
-        if(startingPlayer === 0) {
-          room.send(`Get ready maggots, it's fighting time!\n${nextPlayer} you get to go first! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds! **Kill** your opponent or get yourself up to **500 health** in order to **win**!`)
-          activeFights[fightIndex][0].phase = 'fight'
-          activeFights[fightIndex][1].phase = 'opponent'
-        }
-        else {
-          nextPlayer = room.client.users.resolve(activeFights[fightIndex][playerIndex].id)
-          room.send(`Get ready maggots, it's fighting time!\n${nextPlayer} you get to go first! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds! **Kill** your opponent or get yourself up to **500 health** in order to **win**!`)
-          activeFights[fightIndex][0].phase = 'opponent'
-          activeFights[fightIndex][1].phase = 'fight'
-        }
-        createCanvas(fightIndex, room)
-
-        activeFights[fightIndex][2].battleTimer = setTimeout(() => abortFight(fightIndex, room, errorCode = 3), 900000)
-      }
-      else
+      if(opIndex === 1) {
+        activeFights[fightIndex][opIndex].phase = 'difficulty'
         room.send(`${nextPlayer}, choose the difficulty level of question by typing: **easy**, **medium** or **hard**. The harder the question, the better the reward`)
+      }
+      else {
+        activeFights[fightIndex][opIndex].phase = 'difficulty'
+        activeFights[fightIndex][2].round ++
+        if(activeFights[fightIndex][2].round > 3) {
+          setStats(fightIndex)
+          const startingPlayer = Math.floor(Math.random() * 2)
+          if(startingPlayer === 0) {
+            room.send(`Get ready maggots, it's fighting time!\n${nextPlayer} you get to go first! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds! **Kill** your opponent or get yourself up to **500 health** in order to **win**!`)
+            activeFights[fightIndex][0].phase = 'fight'
+            activeFights[fightIndex][1].phase = 'opponent'
+          }
+          else {
+            nextPlayer = room.client.users.resolve(activeFights[fightIndex][playerIndex].id)
+            room.send(`Get ready maggots, it's fighting time!\n${nextPlayer} you get to go first! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds! **Kill** your opponent or get yourself up to **500 health** in order to **win**!`)
+            activeFights[fightIndex][0].phase = 'opponent'
+            activeFights[fightIndex][1].phase = 'fight'
+          }
+          createCanvas(fightIndex, room)
+          clearTimeout(activeFights[fightIndex][2].timer)
+          activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, playerIndex, room), 30000)
+          activeFights[fightIndex][2].battleTimer = setTimeout(() => abortFight(fightIndex, room, errorCode = 3), 900000)
+        }
+        else
+          room.send(`${nextPlayer}, choose the difficulty level of question by typing: **easy**, **medium** or **hard**. The harder the question, the better the reward`)
+      }
     }
   }
 }
@@ -383,6 +396,8 @@ const finishFight = (fightIndex, playerIndex, winner, room) => {
 }
 
 const abortFight = (fightIndex, room, errorCode) => {
+  clearTimeout(activeFights[fightIndex][2].timer)
+  clearTimeout(activeFights[fightIndex][2].battleTimer)
   activeFights.splice(fightIndex, 1)
   if(errorCode === 1)
     room.send(`Sorry, but the fight was interrupted by a filfthy gnmoe. That bastard stole your questions and ran away. Try starting another fight or wait untill the gnome is gone.`)

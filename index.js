@@ -1,10 +1,10 @@
-var express = require('express');
-var app = express();
+// var express = require('express');
+// var app = express();
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Our app is running on port ${ PORT }`);
-});
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//     console.log(`Our app is running on port ${ PORT }`);
+// });
 
 const Discord = require('discord.js')
 const { prefix, token } = require('./config.json')
@@ -31,6 +31,8 @@ client.on('message', message => {
     const opponent = message.mentions.members.first()
     if(isInFight(opponent))
       message.channel.send(`${opponent} is already in fight, wait your turn or fight someone else!`)
+    else if(message.author === opponent)
+      message.channel.send(`You idiot! How do you want to fight yourself?`)
     else {
       if(opponent) 
         fight(message.author, opponent, message.channel)
