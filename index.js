@@ -2,7 +2,7 @@ const Discord = require('discord.js')
 const { prefix, token } = require('./config.json')
 const client = new Discord.Client()
 
-const { changeClass, showInfo, fight, isInFight, getClassNames, fightAction, displayClassStats } = require('./users.js')
+const { changeClass, showInfo, fight, isInFight, getClassNames, fightAction, displayClassStats, showHelp } = require('./users.js')
 
 client.once('ready', () => {
   console.log("ready")
@@ -45,6 +45,10 @@ client.on('message', message => {
       changeClass(message.author, 'rogue', message.channel)
     else
       message.channel.send(`${message.author}, you idiot... There is no class such as ${uClass}. Available classes: ${getClassNames()}"`)
+  }
+
+  else if(message.content.startsWith(`${prefix} help`)) {
+    showHelp(message.channel)
   }
   
 

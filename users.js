@@ -558,6 +558,10 @@ async function loadAvatars(user1, user2, fightIndex) {
   activeFights[fightIndex][1].avatar = await Canvas.loadImage(user2.client.users.resolve(user2.id).displayAvatarURL({ format: 'jpg' }))
 }
 
+const showHelp = (room) => {
+  room.send(`Available commands are: bnn help, bnn class, bnn classinfo, bnn fight, bnn info`)
+}
+
 const createReward = (user, room, fightIndex) => {
   let rewardGrade
   if(user.difficulty === 'easy') rewardGrade = 5 
@@ -593,5 +597,5 @@ const createReward = (user, room, fightIndex) => {
 
 
 
-module.exports = { changeClass, showInfo, fight, isInFight, getClassNames, fightAction, displayClassStats }
+module.exports = { changeClass, showInfo, fight, isInFight, getClassNames, fightAction, displayClassStats, showHelp }
 
