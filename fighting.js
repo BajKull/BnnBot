@@ -488,7 +488,7 @@ const createCanvas = (fightIndex, room) => {
   ⚔️  ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}
   🛡️  ${activeFights[fightIndex][0].stats.armor}
   ❤️  ${activeFights[fightIndex][0].stats.health}
- `, 25, 150) 
+ `, 25, 150)
 
   context.font = '40px sans-serif';
   context.fillStyle = '#ffffff'
