@@ -497,7 +497,7 @@ const createCanvas = (fightIndex, room) => {
   ⚔️  ${activeFights[fightIndex][1].stats.attack}-${activeFights[fightIndex][1].stats.attack + 50}
   🛡️  ${activeFights[fightIndex][1].stats.armor}
   ❤️  ${activeFights[fightIndex][1].stats.health}
- `, 325, 150)
+ `, 325, 150) 
 
   const attachment = new Discord.MessageAttachment(canvas.toBuffer())
 
