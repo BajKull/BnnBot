@@ -539,12 +539,12 @@ async function loadAvatars(user1, user2, fightIndex) {
 }
 
 const showHelp = (room) => {
-  room.send(```Available commands: 
+  room.send(`\`\`\`Available commands: 
   bnn help
   bnn class
   bnn classinfo
   bnn fight
-  bnn info```)
+  bnn info\`\`\``)
 }
 
 const createReward = (user, room, fightIndex) => {
