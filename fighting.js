@@ -227,18 +227,18 @@ const fightAction = (message, user, room) => {
     let fightOn = true
     if(message === 'attack' || message === 'defend' || message === 'rest') {
       if(message === 'attack') {
+        const opponent = room.client.users.resolve(activeFights[fightIndex][opIndex].id)
         if(activeFights[fightIndex][opIndex].class === 'rogue' && Math.floor(Math.random() * 100) < activeFights[fightIndex][playerIndex].stats.special + Math.floor(Math.random() * 20)) {
-          const opponent = room.client.users.resolve(activeFights[fightIndex][opIndex].id)
           room.send(`${user} swings his sword but he's too slow for ${opponent} which **dodges** the attack`)
+          fightOn = false
+          changePlayer(fightIndex, playerIndex, room, false)
         }
         else {
           const attack = activeFights[fightIndex][playerIndex].stats.attack
           const defend = activeFights[fightIndex][opIndex].stats.armor
           let damage = attack - defend + Math.floor(Math.random() * 50);
           if(damage < 0)
-            damage = 0
-          const opponent = room.client.users.resolve(activeFights[fightIndex][opIndex].id)
-  
+            damage = 0  
           activeFights[fightIndex][opIndex].stats.health = activeFights[fightIndex][opIndex].stats.health - damage
           let health = activeFights[fightIndex][opIndex].stats.health
           if(health < 0)
@@ -296,8 +296,10 @@ const fightAction = (message, user, room) => {
               healthAmount = 0
             }
             room.send(`In addition ${user}, cast a fireball **dealing ${damage}** piercing **damage**, which leaves him at **${healthAmount} health**!`)
-            if(isDead(activeFights[fightIndex][opIndex]))
+            if(isDead(activeFights[fightIndex][opIndex])) {
               finishFight(fightIndex, playerIndex, user, room)
+              fightOn = false
+            }
           }
           else if(activeFights[fightIndex][playerIndex].class === 'druid') {
             const heal = 25 + Math.floor(Math.random() * 40)
@@ -306,10 +308,12 @@ const fightAction = (message, user, room) => {
             room.send(`In addition ${user}, summoned a duck which **healed** him for **${heal}**, which gives him **${health} health** in total!`)
             if(health > 500) {
               finishFight(fightIndex, playerIndex, user, room)
+              fightOn = false
             }
           }
         }
-        changePlayer(fightIndex, playerIndex, room, false)
+        if(fightOn)
+          changePlayer(fightIndex, playerIndex, room, false)
       }
 
     }
@@ -368,7 +372,7 @@ const changePlayer = (fightIndex, playerIndex, room, afk) => {
           }
           createCanvas(fightIndex, room)
           clearTimeout(activeFights[fightIndex][2].timer)
-          activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, playerIndex, room), 30000)
+          activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, playerIndex, room, true), 30000)
           activeFights[fightIndex][2].battleTimer = setTimeout(() => abortFight(fightIndex, room, errorCode = 3), 900000)
         }
         else
@@ -415,7 +419,7 @@ const getClassStats = (str) => {
   else if(str === 'druid')
     return {health: 215, attack: 15, armor: 25, special: 20}
   else if(str === 'mage')
-    return {health: 170, attack: 20, armor: 10, special: 25}
+    return {health: 170, attack: 20, armor: 10, special: 100}
   else
     return null
 }
@@ -481,7 +485,7 @@ const createCanvas = (fightIndex, room) => {
   context.fillStyle = '#ffffff'
   context.fillText
   (`
-  ⚔️  ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}
+  :crossed_swords:  ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}
   🛡️  ${activeFights[fightIndex][0].stats.armor}
   ❤️  ${activeFights[fightIndex][0].stats.health}
  `, 25, 150)
