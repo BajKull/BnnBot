@@ -9,13 +9,12 @@ const Discord = require('discord.js')
 
 const showInfo = (user, room) => {
   const player = getUser(user.id)
-
   if(player) 
-    room.send(```${user}
+    room.send(`\`\`\` ${player.name}
     level: ${player.level} 
     wins: ${player.wins}
     losses: ${player.losses}
-    winstreak: ${player.winstreak}```)
+    winstreak: ${player.winstreak}\`\`\``)
   else 
     room.send(`${user} you must first choose your class to join the fighting game. To do so type *bnn class ...*. Available classess are: *${getClassNames()}*`)
 }
@@ -434,19 +433,24 @@ const displayClassStats = (className, room) => {
     room.send(`Mage, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to cast a fireball, dealing 30-70 opponent's piercing damage.`)
   else if(name === 'druid')
     room.send(`Druid, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to heal for 25-65.`)
-  else if(name === 'all')
-    room.send(```
-            warrior      mage      driud      rogue
-attack        20          20        20         20
-armor         15          25        10         10
-health        230         130       100        200
+  else if(name === 'all') {
+    const warrior = getClassStats('warrior')
+    const mage = getClassStats('mage')
+    const druid = getClassStats('druid')
+    const rogue = getClassStats('rogue')
+    room.send(`\`\`\`
+            warrior      mage      druid      rogue
+attack        ${warrior.attack}          ${mage.attack}        ${druid.attack}         ${rogue.attack}
+armor         ${warrior.armor}          ${mage.armor}        ${druid.armor}         ${rogue.armor}
+health        ${warrior.health}         ${mage.health}       ${druid.health}        ${rogue.health}
 
-special      20-40%      20-40%    20-40%     20-40%
+special      ${warrior.special}-${warrior.special+20}%      ${mage.special}-${mage.special + 20}%    ${druid.special}-${druid.special + 20}%     ${rogue.special}-${rogue.special + 20}%
              reduce      deal      heal       dodge
              armor       dmg       up         attack
-```)
+\`\`\``)
+  }
   else
-    room.send(`Invalid classname. Type bnn classinfo class. Available classes: *${getClassNames()}*`)
+    room.send(`Invalid classname. Type bnn classinfo class. Available classes: *${getClassNames()}* or **all**`)
 }
 
 const createCanvas = (fightIndex, room) => {
