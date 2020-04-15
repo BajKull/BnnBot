@@ -1,27 +1,14 @@
-const users = []
 const activeFights = []
 const classes = ['warrior', 'mage', 'druid', 'rogue']
+
+const { getUser, afterFightUpdate } = require('./userlist.js')
 
 const Fetch = require('node-fetch')
 const Canvas = require('canvas')
 const Discord = require('discord.js')
 
-const changeClass = (user, userClass, room) => {
-
-  const player = users.find(el => el.id === user.id)
-
-  if(player) {
-    updatePlayer(user, userClass)
-    room.send(`${user} has changed his class, now fighting as a ${userClass}`)
-  }
-  else {
-    addPlayer(user, userClass)
-    room.send(`${user} has joined the fighting club as a ${userClass}`)
-  }
-}
-
 const showInfo = (user, room) => {
-  const player = users.find(el => el.id === user.id)
+  const player = getUser(user.id)
 
   if(player) 
     room.send(`${user} is level ${player.level} with ${player.wins} wins, ${player.losses} losses and is on a ${player.winstreak} winstreak`)
@@ -31,8 +18,8 @@ const showInfo = (user, room) => {
 
 const fight = (player1, player2, room) => {
 
-  const fighter1 = users.find(el => el.id === player1.id)
-  const fighter2 = users.find(el => el.id === player2.id)
+  const fighter1 = getUser(player1.id)
+  const fighter2 = getUser(player2.id)
 
   if(!fighter1)
     room.send(`${player1} you idiot, choose a class first. To do so type "bnn class ...". Available classess are ${getClassNames()}.`)
@@ -169,6 +156,7 @@ const fightAction = (message, user, room) => {
         room.send(`${user}, ${body.results[0].question.replace(/&quot;/gi, '')} \n${showAnswers.reduce((acc = '', ans) => { return acc.concat('\n' + ans)})}`)
       })
       .catch((error) => {
+        console.log(error)
         if(activeFights[fightIndex][2].errors > 2)
           abortFight(fightIndex, room, errorCode = 1)
         else {
@@ -331,19 +319,6 @@ const fightAction = (message, user, room) => {
   
 }
 
-const addPlayer = (user, userClass) => {
-  const player = {
-    id: user.id,
-    name: user.username,
-    class: userClass,
-    level: 0,
-    wins: 0,
-    losses: 0,
-    winstreak: 0
-  }
-  users.push(player)
-}
-
 const changePlayer = (fightIndex, playerIndex, room) => {
   const round = activeFights[fightIndex][2].round
   const opIndex = (playerIndex === 0) ? 1 : 0
@@ -392,22 +367,13 @@ const isDead = (player) => {
 }
 
 const finishFight = (fightIndex, playerIndex, winner, room) => {
-  const fighter = activeFights[fightIndex][playerIndex]
-  const index = users.findIndex(el => el.id === fighter.id)
   const opPlayerIndex = (playerIndex === 0) ? 1 : 0
+  const fighter1 = activeFights[fightIndex][playerIndex]
   const fighter2 = activeFights[fightIndex][opPlayerIndex]
-  const opIndex = users.findIndex(el => el.id === fighter2.id)
-  const userWinner = users[index]
-  const userLoser = users[opIndex]
-  userWinner.wins ++
-  userWinner.winstreak ++
-  userLoser.losses ++
-  userLoser.winstreak = 0
 
-  users[index] = userWinner
-  users[opIndex] = userLoser
+  const winstreak = afterFightUpdate(fighter1.id, fighter2.id)
   
-  room.send(`Fight finished! ${winner} won with ${fighter.stats.health} health left! He is on a ${userWinner.winstreak} winstreak.`)
+  room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a ${winstreak} winstreak.`)
   clearTimeout(activeFights[fightIndex][2].timer)
   clearTimeout(activeFights[fightIndex][2].battleTimer)
   activeFights.splice(fightIndex, 1)
@@ -421,11 +387,6 @@ const abortFight = (fightIndex, room, errorCode) => {
     room.send(`Sorry, but you gotta act faster. My time is precious and limited. Fight over due to your reflexes.`)
   else if (errorCode === 3)
     room.send(`Okay, I'm done with you. Fight over due to your fighting speed. Next time act faster.`)
-}
-
-const updatePlayer = (user, userClass) => {
-  const index = users.findIndex(el => el.id === user.id)
-  users[index].class = userClass
 }
 
 const getClassStats = (str) => {
@@ -597,5 +558,5 @@ const createReward = (user, room, fightIndex) => {
 
 
 
-module.exports = { changeClass, showInfo, fight, isInFight, getClassNames, fightAction, displayClassStats, showHelp }
+module.exports = { showInfo, fight, isInFight, getClassNames, fightAction, displayClassStats, showHelp }
 
