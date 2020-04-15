@@ -419,7 +419,7 @@ const getClassStats = (str) => {
   else if(str === 'druid')
     return {health: 215, attack: 15, armor: 25, special: 20}
   else if(str === 'mage')
-    return {health: 170, attack: 20, armor: 10, special: 100}
+    return {health: 170, attack: 20, armor: 10, special: 25}
   else
     return null
 }
