@@ -8,110 +8,99 @@ const Canvas = require('canvas')
 const Discord = require('discord.js')
 
 const showInfo = (user, room) => {
-  const player = getUser(user.id)
-  if(player) 
-    room.send(`\`\`\` ${player.name}
-    level: ${player.level} 
-    wins: ${player.wins}
-    losses: ${player.losses}
-    winstreak: ${player.winstreak}\`\`\``)
-  else 
-    room.send(`${user} you must first choose your class to join the fighting game. To do so type *bnn class ...*. Available classess are: *${getClassNames()}*`)
+  getUser(user.id).then((player) => {
+    if(player) 
+      room.send(`\`\`\` ${player.name}
+      level: ${player.level} 
+      wins: ${player.wins}
+      losses: ${player.losses}
+      winstreak: ${player.winstreak}\`\`\``)
+    else 
+      room.send(`${user} you must first choose your class to join the fighting game. To do so type *bnn class ...*. Available classess are: *${getClassNames()}*`)
+  }).catch((error) => {
+    console.log(error)
+    room.send(`Couldn\'t connect to the database, try again later`)
+  })
+  
 }
 
 const fight = (player1, player2, room) => {
+  // get player1
+  getUser(player1.id).then((fighter1) => {
+    if(!fighter1)
+      room.send(`${player1} you idiot, choose a class first. To do so type *bnn class ...*. Available classess are *${getClassNames()}*.`)
+    else {
+      // get player2 if player1 is in database
+      getUser(player2.id).then((fighter2) => {
+        if(!fighter2)
+          room.send(`${player2} is not a member of this fighting community. Tell this idiot to choose his class. To do so type *bnn class ...*. Available classess are *${getClassNames()}*.`)
+        else {
+          // set stats used in fighting
+          const user1 = {
+            id: fighter1.id,
+            name: fighter1.name,
+            class: fighter1.class,
+            phase: 'difficulty',
+            difficulty: '',
+            correctAnswer: '',
+            defends: 0,
+            stats: {
+              attack: 0,
+              armor: 0,
+              health: 0,
+              special: 0,
+            },
+            weapon: {
+              name: 'null',
+              attack: 0,
+            },
+            shield: {
+              name: 'null',
+              armor: 0,
+              health: 0,
+            },
+            necklace: {
+              name: 'null',
+              attack: 0,
+              armor: 0,
+              health: 0,
+            },
+            avatar: null,
+          }
 
-  const fighter1 = getUser(player1.id)
-  const fighter2 = getUser(player2.id)
+          const user2 = Object.assign({}, user1)
+          user2.id = fighter2.id
+          user2.name = fighter2.name
+          user2.class = fighter2.class
+          user2.phase = 'opponent'
 
-  if(!fighter1)
-    room.send(`${player1} you idiot, choose a class first. To do so type *bnn class ...*. Available classess are *${getClassNames()}*.`)
-  if(!fighter2)
-    room.send(`${player2} is not a member of this fighting community. Tell this idiot to choose his class. To do so type *bnn class ...*. Available classess are *${getClassNames()}*.`)
+          // battle info
+          const info = {
+            reward: {
+              weapon: null,
+              shield: null,
+              necklace: null,
+            },
+            round: 1,
+            errors: 0,
+            afkActions: 0,
+            timer: setTimeout(() => abortFight(activeFights.length - 1, room, 2), 30000),
+            battleTimer: null,
+          }
 
-  if(fighter1 && fighter2) {
-    const user1 = {
-      id: fighter1.id,
-      name: fighter1.name,
-      class: fighter1.class,
-      phase: 'difficulty',
-      difficulty: '',
-      correctAnswer: '',
-      defends: 0,
-      stats: {
-        attack: 0,
-        armor: 0,
-        health: 0,
-        special: 0,
-      },
-      weapon: {
-        name: 'null',
-        attack: 0,
-      },
-      shield: {
-        name: 'null',
-        armor: 0,
-        health: 0,
-      },
-      necklace: {
-        name: 'null',
-        attack: 0,
-        armor: 0,
-        health: 0,
-      },
-      avatar: null,
+          activeFights.push([user1, user2, info])
+          loadAvatars(player1, player2, activeFights.length - 1)
+          room.send(`${player1}, ${player2} prepare for your fight!. \nTrivia time! Answer your questions correctly and you will be awarded! \n${player1}, choose the difficulty level of question by typing: **easy**, **medium** or **hard**. The harder the question, the better the reward`)
+        }
+      }).catch((error) => {
+        console.log(error)
+        room.send(`Couldn\'t connect to the database, try again later`)
+      })
     }
-    const user2 = {
-      id: fighter2.id,
-      name: fighter2.name,
-      class: fighter2.class,
-      phase: 'opponent',
-      difficulty: '',
-      correctAnswer: '',
-      defends: 0,
-      stats: {
-        attack: 0,
-        armor: 0,
-        health: 0,
-        special: 0,
-      },
-      weapon: {
-        name: 'null',
-        attack: 0,
-      },
-      shield: {
-        name: 'null',
-        armor: 0,
-        health: 0,
-      },
-      necklace: {
-        name: 'null',
-        attack: 0,
-        armor: 0,
-        health: 0,
-      },
-      avatar: null,
-    }
-
-    const info = {
-      reward: {
-        weapon: null,
-        shield: null,
-        necklace: null,
-      },
-      round: 1,
-      errors: 0,
-      afkActions: 0,
-      timer: setTimeout(() => abortFight(activeFights.length - 1, room, 2), 30000),
-      battleTimer: null,
-    }
-
-    activeFights.push([user1, user2, info])
-    
-    loadAvatars(player1, player2, activeFights.length - 1)
-    room.send(`${player1}, ${player2} prepare for your fight!. \nPhase 1: trivia. Answer your questions correctly and you will be awarded! \n${player1} choose the difficulty level of question by typing: **easy**, **medium** or **hard**. The harder the question, the better the reward`)
-  }
-  
+  }).catch((error) => {
+    console.log(error)
+    room.send(`Couldn\'t connect to the database, try again later`)
+  })
 }
 
 const isInFight = (player) => {
@@ -391,12 +380,16 @@ const finishFight = (fightIndex, playerIndex, winner, room) => {
   const fighter1 = activeFights[fightIndex][playerIndex]
   const fighter2 = activeFights[fightIndex][opPlayerIndex]
 
-  const winstreak = afterFightUpdate(fighter1.id, fighter2.id)
-  
-  room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a ${winstreak} winstreak.`)
   clearTimeout(activeFights[fightIndex][2].timer)
   clearTimeout(activeFights[fightIndex][2].battleTimer)
   activeFights.splice(fightIndex, 1)
+
+  afterFightUpdate(fighter1.id, fighter2.id).then((winstreak) => {
+    room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a ${winstreak} winstreak.`)
+  }).catch((error) => {
+    room.send(error)
+  })
+  
 }
 
 const abortFight = (fightIndex, room, errorCode) => {

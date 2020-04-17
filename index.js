@@ -39,7 +39,11 @@ client.on('message', message => {
 
   else if(message.content.startsWith(`${prefix} class`)) {
     const uClass = message.content.split(' ')[2]
-    message.channel.send(updateUser(message.author, uClass))
+    updateUser(message.author, uClass).then((accepted) => {
+      message.channel.send(accepted)
+    }).catch((rejected) => {
+      message.channel.send(rejected)
+    })
   }
 
   else if(message.content.startsWith(`${prefix} help`)) {
