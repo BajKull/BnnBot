@@ -29,7 +29,7 @@ const updateUser = (user, userClass) => {
         }
         // if user doesnt exist, create him
         else {
-          connection.query(`INSERT INTO users VALUES (\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0)`, (error) => {
+          connection.query(`INSERT INTO users VALUES (\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0, 0)`, (error) => {
             if(error) {
               console.log(error)
               rejected('Couldn\'t connect to the database, try again later')
