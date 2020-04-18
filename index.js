@@ -4,6 +4,8 @@ const client = new Discord.Client()
 
 const { showInfo, fight, isInFight, fightAction, displayClassStats, showHelp } = require('./fighting.js')
 const { updateUser } = require('./userlist.js')
+const { getImage } = require('./images.js')
+const { isAnimal } = require('./animals.js')
 
 client.once('ready', () => {
   client.user.setActivity("bnn help")
@@ -46,10 +48,17 @@ client.on('message', message => {
     })
   }
 
-  else if(message.content.startsWith(`${prefix} help`)) {
+  else if(message.content.startsWith(`${prefix} help`)) 
     showHelp(message.channel)
+  else if(message.content.startsWith(`${prefix} pic`)) {
+    if(isAnimal(message.content)) {
+      getImage(message.content).then((image) => {
+        message.channel.send(image)
+      })
+    }
+    else 
+      message.channel.send(`Not on list :duck:`)
   }
-  
 
 })
 

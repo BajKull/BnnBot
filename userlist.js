@@ -8,6 +8,12 @@ const connection = mysql.createConnection({
   database: `${dblogin}`,
 })
 
+// if connection ends, reconnect
+connection.on('error', (error) => {
+  console.log(error)
+  connection()
+})
+
 const updateUser = (user, userClass) => {
   if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
     return new Promise((accepted, rejected) => {
