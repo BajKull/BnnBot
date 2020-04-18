@@ -11,7 +11,7 @@ const connection = mysql.createConnection({
 // if connection ends, reconnect
 connection.on('error', (error) => {
   console.log(error)
-  connection()
+  connection.connect()
 })
 
 const updateUser = (user, msg) => {

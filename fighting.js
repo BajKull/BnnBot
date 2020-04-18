@@ -1,7 +1,7 @@
 const activeFights = []
 const classes = ['warrior', 'mage', 'druid', 'rogue']
 
-const { afterFightUpdate } = require('./userlist.js')
+const { getUser, afterFightUpdate } = require('./userlist.js')
 
 const Fetch = require('node-fetch')
 const Canvas = require('canvas')
