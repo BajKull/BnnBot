@@ -49,7 +49,9 @@ const updateUser = (user, msg) => {
   })
   }
   else
-    return `${user}, you idiot... There are only classes such as: *warrior*, *mage*, *druid*, *rogue*, no other options! If you want to find out what classes do type *bnn classinfo*`
+    return new Promise((error) => {
+      error(`${user}, you idiot... There are only classes such as: *warrior*, *mage*, *druid*, *rogue*, no other options! If you want to find out what classes do type *bnn classinfo*`)
+    })
 }
 
 const getUser = (id) => {
