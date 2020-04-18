@@ -418,7 +418,7 @@ const setStats = (fightIndex) => {
 }
 
 const displayClassStats = (className, room) => {
-  const name = className.msg.substring(14)
+  const name = className.split(' ')[2]
   const classStats = getClassStats(name)
   if(name === 'warrior')
     room.send(`Warrior, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to break 10-30 opponent's armor.`)
