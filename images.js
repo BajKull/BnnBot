@@ -20,6 +20,7 @@ const getImage = (msg) => {
         // console.log(link)
         const picture = new Discord.MessageEmbed()
           .setImage(link)
+          .setColor([128, 0, 128])
         accept(picture)
       }
       else {

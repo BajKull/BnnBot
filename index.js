@@ -60,6 +60,7 @@ client.on('message', message => {
       message.channel.send(`Not on list :duck:`)
   }
 
+
 })
 
 client.login(token)
