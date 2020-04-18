@@ -1,28 +1,11 @@
 const activeFights = []
 const classes = ['warrior', 'mage', 'druid', 'rogue']
 
-const { getUser, afterFightUpdate } = require('./userlist.js')
+const { afterFightUpdate } = require('./userlist.js')
 
 const Fetch = require('node-fetch')
 const Canvas = require('canvas')
 const Discord = require('discord.js')
-
-const showInfo = (user, room) => {
-  getUser(user.id).then((player) => {
-    if(player) 
-      room.send(`\`\`\` ${player.name}
-      level: ${player.level} 
-      wins: ${player.wins}
-      losses: ${player.losses}
-      winstreak: ${player.winstreak}\`\`\``)
-    else 
-      room.send(`${user} you must first choose your class to join the fighting game. To do so type *bnn class ...*. Available classess are: *${getClassNames()}*`)
-  }).catch((error) => {
-    console.log(error)
-    room.send(`Couldn\'t connect to the database, try again later`)
-  })
-  
-}
 
 const fight = (player1, player2, room) => {
   // get player1
@@ -550,15 +533,6 @@ async function loadAvatars(user1, user2, fightIndex) {
   activeFights[fightIndex][1].avatar = await Canvas.loadImage(user2.client.users.resolve(user2.id).displayAvatarURL({ format: 'jpg' }))
 }
 
-const showHelp = (room) => {
-  room.send(`\`\`\`Available commands: 
-  bnn help
-  bnn class
-  bnn classinfo
-  bnn fight
-  bnn info\`\`\``)
-}
-
 const createReward = (user, room, fightIndex) => {
   let rewardGrade
   if(user.difficulty === 'easy') rewardGrade = 5 
@@ -594,5 +568,5 @@ const createReward = (user, room, fightIndex) => {
 
 
 
-module.exports = { showInfo, fight, isInFight, getClassNames, fightAction, displayClassStats, showHelp }
+module.exports = { fight, isInFight, getClassNames, fightAction, displayClassStats }
 

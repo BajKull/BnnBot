@@ -14,7 +14,8 @@ connection.on('error', (error) => {
   connection()
 })
 
-const updateUser = (user, userClass) => {
+const updateUser = (user, msg) => {
+  const userClass = msg.split(' ')[2]
   if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
     return new Promise((accepted, rejected) => {
       connection.query(`SELECT * FROM users WHERE id = ${user.id}`, (error, results) => {

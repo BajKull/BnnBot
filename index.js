@@ -2,10 +2,12 @@ const Discord = require('discord.js')
 const { prefix, token } = require('./config.json')
 const client = new Discord.Client()
 
-const { showInfo, fight, isInFight, fightAction, displayClassStats, showHelp } = require('./fighting.js')
+const { fight, isInFight, fightAction, displayClassStats } = require('./fighting.js')
+const { showHelp, showInfo } = require('./help.js')
 const { updateUser } = require('./userlist.js')
 const { getImage } = require('./images.js')
 const { isAnimal } = require('./animals.js')
+const { rollDice } = require('./random.js')
 
 client.once('ready', () => {
   client.user.setActivity("bnn help")
@@ -17,9 +19,30 @@ client.on('message', message => {
     const ans = message.content.toLowerCase()
     fightAction(ans, message.author, message.channel)
   }
-  
-  else if(message.content.startsWith(`${prefix} info`))
-    showInfo(message.author, message.channel)
+
+  else if(message.content.startsWith(`${prefix} help`))
+    message.channel.send(showHelp(message.author))
+    
+  else if(message.content.startsWith(`${prefix} classinfo`))
+    displayClassStats(message.content, message.channel)
+
+  else if(message.content.startsWith(`${prefix} roll`)) 
+    message.channel.send(rollDice(message.content))
+
+  else if(message.content.startsWith(`${prefix} info`)) 
+    showInfo(message.author).then((accepted) => {
+      message.channel.send(accepted)
+    }).catch((error) => {
+      message.channel.send(error)
+    })
+
+  else if(message.content.startsWith(`${prefix} class`)) {
+    updateUser(message.author, message.content).then((accepted) => {
+      message.channel.send(accepted)
+    }).catch((rejected) => {
+      message.channel.send(rejected)
+    })
+  }
  
   else if(message.content.startsWith(`${prefix} fight`)) {
     const opponent = message.mentions.members.first()
@@ -35,31 +58,15 @@ client.on('message', message => {
     }
   }
 
-  else if(message.content.startsWith(`${prefix} classinfo`)) {
-    displayClassStats(message.content, message.channel)
-  }
-
-  else if(message.content.startsWith(`${prefix} class`)) {
-    const uClass = message.content.split(' ')[2]
-    updateUser(message.author, uClass).then((accepted) => {
-      message.channel.send(accepted)
-    }).catch((rejected) => {
-      message.channel.send(rejected)
-    })
-  }
-
-  else if(message.content.startsWith(`${prefix} help`)) 
-    showHelp(message.channel)
   else if(message.content.startsWith(`${prefix} pic`)) {
     if(isAnimal(message.content)) {
       getImage(message.content).then((image) => {
-        message.channel.send(image)
+        message.channel.send(image).then(message.react('🦆'))
       })
     }
     else 
-      message.channel.send(`Not on list :duck:`)
+      message.channel.send(`Not on list :duck:. Type **bnn pic *animal***. Not every animal is listed though. Example: bnn pic duck`)
   }
-
 
 })
 

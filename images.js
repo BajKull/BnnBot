@@ -10,14 +10,6 @@ const getImage = (msg) => {
   return new Promise((accept, error) => {
     searchLink(image).then(link => {
       if(link) {
-        // const canvas = Canvas.createCanvas(600, 600)
-        // const context = canvas.getContext('2d')
-        // const picture = Canvas.loadImage(link)
-        // picture.then(response => {
-        //   context.drawImage(response, 0, 0, 600, 600)
-        //   accept(canvas.toBuffer())
-        // })
-        // console.log(link)
         const picture = new Discord.MessageEmbed()
           .setImage(link)
           .setColor([128, 0, 128])
