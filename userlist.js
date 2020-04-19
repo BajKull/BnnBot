@@ -1,9 +1,7 @@
 const mysql = require('mysql')
 const { dblogin, dbpassword } = require('./config.json')
 
-let connection 
-
-connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: 'remotemysql.com',
   user: `${dblogin}`,
   password: `${dbpassword}`,
@@ -20,7 +18,6 @@ const updateUser = (user, msg) => {
   const userClass = msg.split(' ')[2]
   if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
     return new Promise((accepted, rejected) => {
-      connection.connect()
       connection.query(`SELECT * FROM users WHERE id = ${user.id}`, (error, results) => {
         if(error) {
           console.log(error)
@@ -49,7 +46,6 @@ const updateUser = (user, msg) => {
           })
         }
       })
-      connection.end()
   })
   }
   else
@@ -60,7 +56,6 @@ const updateUser = (user, msg) => {
 
 const getUser = (id) => {
   return new Promise((user, error) => {
-    connection.connect()
     connection.query(`SELECT * FROM users WHERE id = ${id}`, (errorMsg, results) => {
       if(errorMsg) {
         console.log(errorMsg)
@@ -74,12 +69,10 @@ const getUser = (id) => {
           return user(null)
       }
     })
-    connection.end()
   })
 }
 
 const afterFightUpdate = (winner, loser) => {
-  connection.connect()
   connection.query(`UPDATE users SET wins = wins + 1, winstreak = winstreak + 1 WHERE id = ${winner}`, (error) => {
     if(error)
       console.log(error)
@@ -88,7 +81,6 @@ const afterFightUpdate = (winner, loser) => {
     if(error)
       console.log(error)
   })
-  connection.end()
   return new Promise((winstreak, error) => {
     getUser(winner).then((user) => {
       winstreak(user.winstreak)
