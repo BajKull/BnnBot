@@ -1,7 +1,7 @@
 const mysql = require('mysql')
 const { dblogin, dbpassword } = require('./config.json')
 
-const connection = mysql.createConnection({
+let connection = mysql.createConnection({
   host: 'remotemysql.com',
   user: `${dblogin}`,
   password: `${dbpassword}`,
@@ -12,6 +12,12 @@ const connection = mysql.createConnection({
 // if connection ends, reconnect
 connection.on('error', (error) => {
   console.log(error)
+  connection = mysql.createConnection({
+    host: 'remotemysql.com',
+    user: `${dblogin}`,
+    password: `${dbpassword}`,
+    database: `${dblogin}`,
+  })
 })
 
 const updateUser = (user, msg) => {
