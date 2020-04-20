@@ -1,3 +1,4 @@
+const Discord = require('discord.js')
 let activePoll = null
 
 const isPollActive = () => activePoll
@@ -5,10 +6,11 @@ const isPollActive = () => activePoll
 const vote = (user, msg) => {
   const option = msg.split(' ')[2]
   if(activePoll) {
-    if(voted.find(user.id))
+    if(activePoll.voted.indexOf(user.id) >= 0)
       return ('You can\'t vote twice!')
-    const index = activePoll.options.indexOf(el => el.option === option)
-    if(index) {
+    const choice = activePoll.options.find(el => el.option === option)
+    const index = activePoll.options.indexOf(choice)
+    if(index >= 0) {
       activePoll.voted.push(user.id)
       activePoll.options[index].votes ++
     }
@@ -24,40 +26,60 @@ const vote = (user, msg) => {
 }
 
 const poll = (msg) => {
-  const options = msg.split(' ').splice(0, 2)
+  const options = msg.content.split(' ').splice(2)
+  const index = options.indexOf('?')
+  if(index === -1)
+    return('You have to end your question with **?**, for example *bnn poll do you like ducks ? yes no*')
+  const question = options.splice(0, index + 1).join(' ')
+  console.log(question)
 
-  return new Promise((accepted, rejected) => {
+  
     if(options.length < 2)
-      rejected('You have to give at least 2 options for the poll! Type bnn poll *option1* *option2* ... to create a poll. Max 20 options.')
+      return('You have to give at least 2 options for the poll! Type bnn poll *question* *option1* *option2* ... to create a poll. Max 20 options.')
     if(options.length > 20)
-      rejected('Max 20 options!')
+      return('Max 20 options!')
     if(activePoll) 
-      rejected(`A poll is already carried out, wait your turn!`)
+      return(`A poll is already carried out, wait your turn!`)
    
     activePoll = {
+      question: question.slice(0, question.length - 2) + '?',
       options: options.map(option => {return {option: option, votes: 0}}),
       voted: []
     }
 
-    accepted('Poll created! Type bnn vote *option* or bnn vote *number* in order to vote. For example *bnn vote ducks*, *bnn vote 2*')
+    const review = new Discord.MessageEmbed()
+      .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+      .setTitle(activePoll.question)
+      .setColor([128, 0, 128])
+      .setDescription(options.map((x, i) => `${i+1}) ${x}\n`))
+      .setFooter('Poll created! Type bnn vote *option* or bnn vote *number* in order to vote. For example *bnn vote ducks*, *bnn vote 2*')
+      
+    return(review)
+  
+}
 
-    setTimeout(() => {
-      accepted(endPoll())
-    }, 5000)
+const pollTimer = () => {
+  return new Promise((accepted, rejected) => {
+    if(activePoll)
+      setTimeout(() => {
+        accepted(endPoll())
+      }, 30000)
+    else
+      rejected(null)
   })
 }
 
 const endPoll = () => {
-  const max = 0
-  const option = 0
+  let max = 0
+  let option = 0
   for(let i = 0; i < activePoll.options.length; i++) {
     if(activePoll.options[i].votes > max) {
       max = activePoll.options[i].votes
       option = activePoll.options[i].option
     }
   }
+  return (`Poll closed! *${activePoll.question}*  **${option}** won with ${max} votes!`)
   activePoll = null
-  return (`Poll closed! Option: ${option} won with ${max} votes!`)
 }
 
-module.exports = { poll, vote }
+module.exports = { poll, vote, pollTimer }

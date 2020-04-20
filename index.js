@@ -8,7 +8,7 @@ const { updateUser } = require('./userlist.js')
 const { getImage } = require('./images.js')
 const { isAnimal } = require('./animals.js')
 const { rollDice } = require('./random.js')
-const { vote, poll } = require('./vote.js')
+const { vote, poll, pollTimer } = require('./vote.js')
 
 client.once('ready', () => {
   client.user.setActivity("bnn help")
@@ -69,21 +69,23 @@ client.on('message', message => {
       message.channel.send(`Not on list :duck:. Type **bnn pic *animal***. Not every animal is listed though. Example: bnn pic duck`)
   }
 
-  // else if(message.content.startsWith(`${prefix} vote`)) {
-  //   const msg = vote(message.author, message.content)
-  //   if(msg)
-  //     message.channel.send(msg)
-  //   else
-  //     message.react(":ok_hand:")
-  // }
+  else if(message.content.startsWith(`${prefix} vote`)) {
+    const msg = vote(message.author, message.content)
+    if(msg)
+      message.channel.send(msg)
+    else
+      message.react('👌')
+  }
   
-  // else if(message.content.startsWith(`${prefix} poll`)) {
-  //   poll(message.content).then((accepted) => {
-  //     message.channel.send(accepted)
-  //   }).catch((rejected) => {
-  //     message.channel.send(rejected)
-  //   })
-  // }
+  else if(message.content.startsWith(`${prefix} poll`)) {
+    message.channel.send(poll(message))
+    pollTimer().then(accepted => {
+      if(accepted)
+        message.channel.send(accepted)
+    }).catch(rejected => {
+      rejected = null
+    })
+  }
 
 })
 

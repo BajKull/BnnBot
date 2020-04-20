@@ -6,7 +6,7 @@ const showHelp = (user) => {
     .setAuthor('HELP', user.displayAvatarURL())
     .setColor([128, 0, 128])
     .setTitle('Available commands:')
-    .setDescription('bnn help \nbnn class \nbnn classinfo \nbnn fight \nbnn info \nbnn pic \nbnn roll')
+    .setDescription('bnn help \nbnn class \nbnn classinfo \nbnn fight \nbnn info \nbnn pic \nbnn roll \nbnn poll \nbnn vote')
   return(list)
 }
 
@@ -16,7 +16,7 @@ const showInfo = (user) => {
       if(player) { 
         const stats = new Discord.MessageEmbed()
           .setAuthor(user.username, user.displayAvatarURL())
-          .setColor([128, 0, 126])
+          .setColor([128, 0, 128])
           .setTitle('Stats')
           .setDescription(`level: ${player.level} \nwins: ${player.wins} \nlosses: ${player.losses} \nwinstreak: ${player.winstreak}`)
           accepted(stats) 
