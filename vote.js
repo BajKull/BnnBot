@@ -42,7 +42,8 @@ const poll = (msg) => {
     activePoll = {
       question: question.slice(0, question.length - 2) + '?',
       options: options.map(option => {return {option: option, votes: 0}}),
-      voted: []
+      voted: [],
+      justCreated: true
     }
 
     const review = new Discord.MessageEmbed()
@@ -57,14 +58,19 @@ const poll = (msg) => {
 }
 
 const pollTimer = () => {
-  return new Promise((accepted, rejected) => {
-    if(activePoll)
-      setTimeout(() => {
-        accepted(endPoll())
-      }, 30000)
-    else
-      rejected(null)
-  })
+  if(activePoll.justCreated)
+    return new Promise((accepted, rejected) => {
+      if(activePoll) {
+        setTimeout(() => {
+          accepted(endPoll())
+        }, 15000)
+        activePoll.justCreated = false
+      }
+      else
+        rejected(null)
+    })
+  else
+    return new Promise((accepted, rejected) => rejected(null))
 }
 
 const endPoll = () => {
