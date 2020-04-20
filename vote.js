@@ -22,20 +22,18 @@ const vote = (user, msg) => {
       return('That\'s not how you vote! Type bnn vote *option* or bnn vote *number* in order to vote. For example *bnn vote ducks*, *bnn vote 2*')
   }
   else
-    return('There is no poll active at the moment! Type bnn poll *option1* *option2*... to create a poll. Max 20 options.')
+    return('There is no poll active at the moment! Type bnn poll *question* ? *option1* *option2* ... to create a poll. Max 20 options.')
 }
 
 const poll = (msg) => {
   const options = msg.content.split(' ').splice(2)
   const index = options.indexOf('?')
   if(index === -1)
-    return('You have to end your question with **?**, for example *bnn poll do you like ducks ? yes no*')
+    return('You have to end your question with **?**, for example *bnn poll do you like ducks ? yes no* *(space before question mark)*')
   const question = options.splice(0, index + 1).join(' ')
-  console.log(question)
-
   
     if(options.length < 2)
-      return('You have to give at least 2 options for the poll! Type bnn poll *question* *option1* *option2* ... to create a poll. Max 20 options.')
+      return('You have to give at least 2 options for the poll! Type bnn poll *question* ? *option1* *option2* ... to create a poll. Max 20 options.')
     if(options.length > 20)
       return('Max 20 options!')
     if(activePoll) 
