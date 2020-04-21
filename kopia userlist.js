@@ -1,8 +1,7 @@
 const mysql = require('mysql')
 const { dblogin, dbpassword } = require('./config.json')
 
-let pool = mysql.createPool({
-  connectionLimit: 10,
+let connection = mysql.createConnection({
   host: 'remotemysql.com',
   user: `${dblogin}`,
   password: `${dbpassword}`,
@@ -12,21 +11,21 @@ let pool = mysql.createPool({
 
 
 // if connection ends, reconnect
-// connection.on('error', (error) => {
-//   console.log(error)
-//   connection = mysql.createConnection({
-//     host: 'remotemysql.com',
-//     user: `${dblogin}`,
-//     password: `${dbpassword}`,
-//     database: `${dblogin}`,
-//   })
-// })
+connection.on('error', (error) => {
+  console.log(error)
+  connection = mysql.createConnection({
+    host: 'remotemysql.com',
+    user: `${dblogin}`,
+    password: `${dbpassword}`,
+    database: `${dblogin}`,
+  })
+})
 
 const updateUser = (user, msg) => {
   const userClass = msg.split(' ')[2]
   if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
     return new Promise((accepted, rejected) => {
-      pool.query(`INSERT INTO users VALUES(\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE class = \'${userClass}\'`, (error) => {
+      connection.query(`INSERT INTO users VALUES(\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE class = \'${userClass}\'`, (error) => {
         if(error) {
           console.log(error)
           rejected('Couldn\'t connect to the database, try again later')
@@ -44,17 +43,17 @@ const updateUser = (user, msg) => {
 
 const getUser = (id) => {
   return new Promise((user, error) => {
-    pool.query(`SELECT * FROM users WHERE id = ${id}`, (errorMsg, results) => {
+    connection.query(`SELECT * FROM users WHERE id = ${id}`, (errorMsg, results) => {
       if(errorMsg) {
         console.log(errorMsg)
-        error('Couldn\'t connect to the database, try again later')
+        return error('Couldn\'t connect to the database, try again later')
       }
       else {
         if(results[0]) {
-          user(results[0])
+          return user(results[0])
         }
         else
-          user(null)
+          return user(null)
       }
     })
   })
@@ -66,7 +65,7 @@ const afterFightUpdate = (winner, loser) => {
     const up2 = `UPDATE users SET losses = losses + 1, winstreak = 0 WHERE id = \'${loser}\';`
     const sel = `SELECT winstreak FROM users WHERE id = \'${winner}\'`
 
-    pool.query(up1 + up2 + sel, (error, results) => {
+    connection.query(up1 + up2 + sel, (error, results) => {
         if(error){
           console.log(error)
           rejected('Couldn\'t connect to the database, try again later')

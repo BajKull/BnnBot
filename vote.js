@@ -58,17 +58,22 @@ const poll = (msg) => {
 }
 
 const pollTimer = () => {
-  if(activePoll.justCreated)
-    return new Promise((accepted, rejected) => {
-      if(activePoll) {
-        setTimeout(() => {
-          accepted(endPoll())
-        }, 30000)
-        activePoll.justCreated = false
-      }
-      else
-        rejected(null)
-    })
+  if(activePoll)
+    if(activePoll.justCreated) {
+      return new Promise((accepted, rejected) => {
+        if(activePoll) {
+          setTimeout(() => {
+            accepted(endPoll())
+          }, 30000)
+          activePoll.justCreated = false
+        }
+        else
+          rejected(null)
+      })
+    }
+    else
+      return new Promise((accepted, rejected) => rejected(null))
+  
   else
     return new Promise((accepted, rejected) => rejected(null))
 }
