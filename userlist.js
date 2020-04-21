@@ -86,8 +86,12 @@ const addBalance = (user, amount) => {
         console.log(error)
         rejected('Couldn\'t connect to the database, try again later')
       }
-      else
-        accepted(results[1][0].money)
+      else {
+        if(results[1][0])
+          accepted(results[1][0].money)
+        else
+          rejected(`${user} you idiot, how do you want to earn money if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are *warrior*, *mage*, *druid*, *rogue*.`)
+      } 
     })
   })
 }

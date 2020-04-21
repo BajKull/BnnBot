@@ -1,16 +1,21 @@
 const Discord = require('discord.js')
 const collectedCD = []
 const { getUser, addBalance } = require('./userlist.js')
+const { getClassNames } = require('./fighting.js')
 
 const showBalance = (user) => {
   return new Promise((accepted, rejected) => {
     getUser(user.id).then(account => {
-      const msg = new Discord.MessageEmbed()
-        .setAuthor(user.username, user.displayAvatarURL())
-        .setTitle('Balance')
-        .setColor([128, 0, 128])
-        .setDescription(`Money: ${account.money}$`)
-        accepted(msg)
+      if(!account)
+        rejected(`${user} you idiot, how do you want to look at your balance if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are *${getClassNames()}*.`)
+      else {
+        const msg = new Discord.MessageEmbed()
+          .setAuthor(user.username, user.displayAvatarURL())
+          .setTitle('Balance')
+          .setColor([128, 0, 128])
+          .setDescription(`Money: ${account.money}$`)
+          accepted(msg)
+      }
     }).catch(error => {
       console.log(error)
       rejected('Couldn\'t connect to the database, try again later')
@@ -24,8 +29,7 @@ const addMoney = (user) => {
     addBalance(user, amount).then(balance => {
       accepted(`You collected ${amount} cans which gives you ${balance}$ in total`)
     }).catch(error => {
-      console.log(error)
-      rejected('Couldn\'t connect to the database, try again later')
+      rejected(error)
     })
   })
 }
