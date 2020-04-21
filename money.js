@@ -115,7 +115,7 @@ const higherLower = (msg) => {
             }
   
             activeGamblers.push(player)
-            accepted(`Okay ${user}, let\'s give you a number. Hmm... It\'ll be **${player.number}** this time. Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${player.currentStake}$**`)
+            accepted(`Okay ${user}, let\'s give you a number. Hmm... It\'ll be **${player.number}** this time. Will it be **higher** or **lower**, what do you think? Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${player.currentStake}$**`)
           }
         }
       })
@@ -165,7 +165,7 @@ const continueHigherLower = (action, user, index) => {
     }
   }
   else if(action === 'finish') {
-    addBalance(user, currentStake)
+    addBalance(user, currentStake - startingAmount)
     activeGamblers.splice(index, 1)
     return(`Game finished! You leave with ${currentStake}$. Type *bnn balance* to see your new balance!`)
   }
