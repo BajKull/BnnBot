@@ -18,7 +18,7 @@ const showInfo = (user) => {
           .setAuthor(user.username, user.displayAvatarURL())
           .setColor([128, 0, 128])
           .setTitle('Stats')
-          .setDescription(`level: ${player.level} \nwins: ${player.wins} \nlosses: ${player.losses} \nwinstreak: ${player.winstreak}`)
+          .setDescription(`level: ${player.level} \nwins: ${player.wins} \nlosses: ${player.losses} \nwinstreak: ${player.winstreak} \nmoney: ${player.money}$`)
           accepted(stats) 
       }
       else 

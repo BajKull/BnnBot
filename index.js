@@ -9,6 +9,7 @@ const { getImage } = require('./images.js')
 const { isAnimal } = require('./animals.js')
 const { rollDice } = require('./random.js')
 const { vote, poll, pollTimer } = require('./vote.js')
+const { showBalance, collectMoney } = require('./money.js')
 
 client.once('ready', () => {
   client.user.setActivity("bnn help")
@@ -30,17 +31,32 @@ client.on('message', message => {
   else if(message.content.startsWith(`${prefix} roll`)) 
     message.channel.send(rollDice(message.content))
 
-  else if(message.content.startsWith(`${prefix} info`)) 
-    showInfo(message.author).then((accepted) => {
+  else if(message.content.startsWith(`${prefix} balance`)) 
+    showBalance(message.author).then(accepted => {
       message.channel.send(accepted)
-    }).catch((error) => {
-      message.channel.send(error)
+    }).catch(rejected => {
+      message.channel.send(rejected)
+    })
+
+    else if(message.content.startsWith(`${prefix} collect`)) 
+      // message.channel.send(collectMoney(message.author))
+      collectMoney(message.author).then(accepted => {
+        message.channel.send(accepted)
+      }).catch(rejected => {
+        message.channel.send(rejected)
+      })
+
+  else if(message.content.startsWith(`${prefix} info`)) 
+    showInfo(message.author).then(accepted => {
+      message.channel.send(accepted)
+    }).catch(rejected => {
+      message.channel.send(rejected)
     })
 
   else if(message.content.startsWith(`${prefix} class`)) {
-    updateUser(message.author, message.content).then((accepted) => {
+    updateUser(message.author, message.content).then(accepted => {
       message.channel.send(accepted)
-    }).catch((rejected) => {
+    }).catch(rejected => {
       message.channel.send(rejected)
     })
   }
@@ -61,7 +77,7 @@ client.on('message', message => {
 
   else if(message.content.startsWith(`${prefix} pic`)) {
     if(isAnimal(message.content)) {
-      getImage(message.content).then((image) => {
+      getImage(message.content).then(image => {
         message.channel.send(image).then(message.react('🦆'))
       })
     }

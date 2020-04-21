@@ -26,7 +26,7 @@ const updateUser = (user, msg) => {
   const userClass = msg.split(' ')[2]
   if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
     return new Promise((accepted, rejected) => {
-      pool.query(`INSERT INTO users VALUES(\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE class = \'${userClass}\'`, (error) => {
+      pool.query(`INSERT INTO users VALUES(\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE class = \'${userClass}\'`, (error) => {
         if(error) {
           console.log(error)
           rejected('Couldn\'t connect to the database, try again later')
@@ -75,7 +75,21 @@ const afterFightUpdate = (winner, loser) => {
           accepted(results[2][0].winstreak)
     })
   })
-  
 }
 
-module.exports = { updateUser, getUser, afterFightUpdate }
+const addBalance = (user, amount) => {
+  return new Promise((accepted, rejected) => {
+    const update = `UPDATE users SET money = money + ${amount} WHERE id = \'${user.id}\';`
+    const select = `SELECT money FROM users WHERE id = \'${user.id}\';`
+    pool.query(update + select, (error, results) => {
+      if(error) {
+        console.log(error)
+        rejected('Couldn\'t connect to the database, try again later')
+      }
+      else
+        accepted(results[1][0].money)
+    })
+  })
+}
+
+module.exports = { updateUser, getUser, afterFightUpdate, addBalance }
