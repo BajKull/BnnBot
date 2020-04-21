@@ -9,7 +9,7 @@ const { getImage } = require('./images.js')
 const { isAnimal } = require('./animals.js')
 const { rollDice } = require('./random.js')
 const { vote, poll, pollTimer } = require('./vote.js')
-const { showBalance, collectMoney } = require('./money.js')
+const { showBalance, collectMoney, isGambling, gamble, higherLower } = require('./money.js')
 
 client.once('ready', () => {
   client.user.setActivity("bnn help")
@@ -21,6 +21,9 @@ client.on('message', message => {
     const ans = message.content.toLowerCase()
     fightAction(ans, message.author, message.channel)
   }
+
+  else if(isGambling(message.author))
+    message.channel.send(gamble(message))
 
   else if(message.content.startsWith(`${prefix} help`))
     message.channel.send(showHelp(message.author))
@@ -102,6 +105,17 @@ client.on('message', message => {
       rejected = null
     })
   }
+
+  else if(message.content.startsWith(`${prefix} highlow`)) {
+    higherLower(message).then(accepted => {
+      message.channel.send(accepted)
+    }).catch(rejected => {
+      message.channel.send(rejected)
+    })
+  }
+
+  else if(message.content.startsWith(`${prefix}`))
+    message.channel.send('Invalid command. To see the list of commands type *bnn help*')
 
 })
 

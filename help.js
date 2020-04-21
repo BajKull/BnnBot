@@ -6,7 +6,7 @@ const showHelp = (user) => {
     .setAuthor('HELP', user.displayAvatarURL())
     .setColor([128, 0, 128])
     .setTitle('Available commands:')
-    .setDescription('bnn help \nbnn class \nbnn classinfo \nbnn fight \nbnn info \nbnn pic \nbnn roll \nbnn poll \nbnn vote')
+    .setDescription('bnn help \nbnn balance \nbnn class \nbnn classinfo \nbnn fight \nbnn info \nbnn pic \nbnn roll \nbnn poll \nbnn vote \nbnn collect \nbnn highlow')
   return(list)
 }
 

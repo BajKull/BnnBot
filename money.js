@@ -3,6 +3,10 @@ const collectedCD = []
 const { getUser, addBalance } = require('./userlist.js')
 const { getClassNames } = require('./fighting.js')
 
+const activeGamblers = []
+
+const isGambling = (user) => { return activeGamblers.find(gambler => gambler.id === user.id) }
+
 const showBalance = (user) => {
   return new Promise((accepted, rejected) => {
     getUser(user.id).then(account => {
@@ -39,7 +43,6 @@ const collectMoney = (user) => {
   if(lastCollected) {
     const date = new Date()
     const diff = Math.floor((lastCollected.time - date) / 1000 * -1)
-    console.log(diff)
     if(diff >= 3600) {
       const index = collectedCD.indexOf(lastCollected)
       collectedCD[index].time = new Date()
@@ -70,9 +73,111 @@ const collectMoney = (user) => {
     }
     collectedCD.push(collector)
     return(addMoney(user))
-  }
-    
+  }    
   
 }
 
-module.exports = { showBalance, collectMoney }
+const gamble = (msg) => {
+  const user = msg.author
+  const action = msg.content
+  const gambler = activeGamblers.find(gambler => gambler.id === user.id)
+  const index = activeGamblers.indexOf(gambler)
+  const whichGame = gambler.game
+  if(msg.content.startsWith('bnn highlow'))
+    return(`${msg.author}, you are already playing ${whichGame}! Your current number is **${activeGamblers[index].number}** and your stake is **${activeGamblers[index].currentStake}**. Type **higher**, **lower** to continue the game or **finish** to take your money.`)
+
+  if(whichGame === 'highlow')
+    return(continueHigherLower(action, user, index))
+}
+
+const higherLower = (msg) => {
+  const user = msg.author
+  const amount = parseInt(msg.content.split(' ')[2])
+  return new Promise((accepted, rejected) => {
+    if(isNaN(amount))
+      rejected('That\'s not how you play! To start the game type *bnn highlow amount*, for example *bnn highlow 15*')
+    else if(amount < 4)
+      rejected('You have to play with at least 4$')
+    else {
+      getUser(user.id).then(gambler => {
+        if(!gambler)
+          rejected(`${user} you idiot, how do you want to gamble without an account? Join the fighting club and we''l give you one for free! To join the club type *bnn class ...*. Available classess are *${getClassNames()}*.`)
+        else {
+          if(gambler.money < amount)
+            rejected(`${user}, you idiot... you can\'t take loans! You only have ${gambler.money}$, go and earn some or lower your stakes!`)
+          else {
+            const player = {
+              id: user.id,
+              game: 'highlow',
+              startingAmount: amount,
+              currentStake: 0,
+              number: Math.floor(Math.random() * 100)
+            }
+  
+            activeGamblers.push(player)
+            accepted(`Okay ${user}, let\'s give you a number. Hmm... It\'ll be **${player.number}** this time. Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${player.currentStake}$**`)
+          }
+        }
+      })
+    }
+  })
+}
+
+const continueHigherLower = (action, user, index) => {
+  const newNumber = Math.floor(Math.random() * 100)
+  const currentNumber = activeGamblers[index].number
+  const currentStake = activeGamblers[index].currentStake
+  const startingAmount = activeGamblers[index].startingAmount
+
+  const prize = () => {
+    if(currentStake === 0) 
+      activeGamblers[index].currentStake += Math.floor(startingAmount / 4)
+    else if(currentStake < Math.floor(startingAmount / 2))
+      activeGamblers[index].currentStake = Math.floor(startingAmount / 2)
+    else if(currentStake === Math.floor(startingAmount / 2))
+      activeGamblers[index].currentStake = startingAmount
+    else
+      activeGamblers[index].currentStake *= 2
+  }
+
+  if(action === 'higher') {
+    if(newNumber >= currentNumber) {
+      prize()
+      activeGamblers[index].number = newNumber
+      return(`Good job! I rolled **${newNumber}**. Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${activeGamblers[index].currentStake}$**`)
+    }
+    else {
+      addBalance(user, startingAmount * -1)
+      activeGamblers.splice(index, 1)
+      return(`Hihi, you lost! I rolled **${newNumber}**. Good luck next time!`)
+    }
+  }
+  else if(action === 'lower') {
+    if(newNumber <= currentNumber) {
+      prize()      
+      activeGamblers[index].number = newNumber
+      return(`Good job! I rolled **${newNumber}**. Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${activeGamblers[index].currentStake}$**`)
+    }
+    else {
+      addBalance(user, startingAmount * -1)
+      activeGamblers.splice(index, 1)
+      return(`Hihi, you lost! I rolled **${newNumber}**. Good luck next time!`)
+    }
+  }
+  else if(action === 'finish') {
+    addBalance(user, currentStake)
+    activeGamblers.splice(index, 1)
+    return(`Game finished! You leave with ${currentStake}$. Type *bnn balance* to see your new balance!`)
+  }
+}
+
+// jednoreki bandyta, const gamble = (user, amount)
+
+// heist, kilka osob wchodzi np za 300, 300, 300, 300, pula rosnie x2, albo zeruje sie, i hajs rozdzielany randomowo
+
+// higher lower
+
+// coin flip
+
+// 
+module.exports = { showBalance, collectMoney, isGambling, gamble, higherLower }
