@@ -115,7 +115,7 @@ const higherLower = (msg) => {
             }
   
             activeGamblers.push(player)
-            accepted(`Okay ${user}, let\'s give you a number. Hmm... It\'ll be **${player.number}** this time. Will it be **higher** or **lower**, what do you think? Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${player.currentStake}$**`)
+            accepted(`Okay ${user}, let\'s give you a number. Hmm... It\'ll be **${player.number}** this time. Will the next number be **higher** or **lower**, what do you think? Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${player.currentStake}$**`)
           }
         }
       })
@@ -171,13 +171,53 @@ const continueHigherLower = (action, user, index) => {
   }
 }
 
+const coinFlip = (msg) => {
+  const user = msg.author
+  const side = msg.content.split(' ')[2]
+  const amount = parseInt(msg.content.split(' ')[3])
+  return new Promise((accepted, rejected) => {
+    if(side !== 'heads' || side !== 'tails') {
+      if(isNaN(amount))
+        rejected(`${user}, that's not how you flip! Type bnn flip *side* *amount* to play, for example bnn flip heads 10.`)
+      else if(amount <= 0)
+        rejected(`${user}, you bastard, bet some money on it! Type bnn flip *side* *amount* to play, for example bnn flip heads 10.`)
+      else {
+        getUser(user.id).then(gambler => {
+          if(gambler.money < amount)
+            rejected(`${user} ,you don't have enough money in your account! Go collect some cans! Your current balance is **${gambler.money}$**`)
+          else {
+            const number = Math.floor(Math.random() * 2)
+            const roll = number === 0 ? 'tails' : 'heads'
+            if(side === roll) {
+              addBalance(user, amount).then(balance => {
+                accepted(`${user}, I flipped **${roll}**, you won! Your new balance is ${balance}$`)
+              }).catch(error => {
+                rejected(error)
+              })
+            }
+            else {
+              addBalance(user, amount * -1).then(balance => {
+                accepted(`${user}, I flipped **${roll}**, you lost! Your new balance is ${balance}$`)
+              }).catch(error => {
+                rejected(error)
+              })
+            }
+          }
+        }).catch(error => {
+          rejected(error)
+        })
+      }
+    }
+    else
+      rejected(`${user}, that's not how you flip! Type bnn flip *side* *amount* to play, for example bnn flip heads 10.`)
+  })
+}
+
 // jednoreki bandyta, const gamble = (user, amount)
 
 // heist, kilka osob wchodzi np za 300, 300, 300, 300, pula rosnie x2, albo zeruje sie, i hajs rozdzielany randomowo
 
-// higher lower
-
 // coin flip
 
 // 
-module.exports = { showBalance, collectMoney, isGambling, gamble, higherLower }
+module.exports = { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip }
