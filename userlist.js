@@ -60,9 +60,9 @@ const getUser = (id) => {
   })
 }
 
-const afterFightUpdate = (winner, loser) => {
+const afterFightUpdate = (winner, loser, prize) => {
   return new Promise((accepted, rejected) => {
-    const up1 = `UPDATE users SET wins = wins + 1, winstreak = winstreak + 1 WHERE id = \'${winner}\';`
+    const up1 = `UPDATE users SET wins = wins + 1, winstreak = winstreak + 1, money = money + ${prize} WHERE id = \'${winner}\';`
     const up2 = `UPDATE users SET losses = losses + 1, winstreak = 0 WHERE id = \'${loser}\';`
     const sel = `SELECT winstreak FROM users WHERE id = \'${winner}\'`
 

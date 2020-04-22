@@ -6,7 +6,7 @@ const { fight, isInFight, fightAction, displayClassStats } = require('./fighting
 const { showHelp, showInfo } = require('./help.js')
 const { updateUser } = require('./userlist.js')
 const { getImage } = require('./images.js')
-const { isAnimal } = require('./animals.js')
+const { isAnimal, animalList } = require('./animals.js')
 const { rollDice } = require('./random.js')
 const { vote, poll, pollTimer } = require('./vote.js')
 const { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip } = require('./money.js')
@@ -26,13 +26,18 @@ client.on('message', message => {
     message.channel.send(gamble(message))
 
   else if(message.content.startsWith(`${prefix} help`))
-    message.channel.send(showHelp(message.author))
+    message.channel.send(showHelp(message))
     
   else if(message.content.startsWith(`${prefix} classinfo`))
     displayClassStats(message.content, message.channel)
 
   else if(message.content.startsWith(`${prefix} roll`)) 
     message.channel.send(rollDice(message.content))
+  
+  else if(message.content.startsWith(`${prefix} piclist`)) {
+    
+    message.author.send(animalList())
+  }
 
   else if(message.content.startsWith(`${prefix} flip`)) 
     coinFlip(message).then(accepted => {

@@ -257,7 +257,7 @@ const fightAction = (message, user, room) => {
               activeFights[fightIndex][opIndex].stats.armor = 0
               armorAmount = 0
             }
-            room.send(`In addition ${user}, scratches opponents **armor** and **reduces** it by **${armor}**, which leaves him at **${armorAmount} armor**!`)
+            room.send(`In addition ${user}, scratches opponents **armor** and **reduces** it by **${armor}**, which leaves his opponent at **${armorAmount} armor**!`)
           }
           else if(activeFights[fightIndex][playerIndex].class === 'mage') {
             const damage = 30 + Math.floor(Math.random() * 40)
@@ -267,7 +267,7 @@ const fightAction = (message, user, room) => {
               activeFights[fightIndex][opIndex].stats.health = 0
               healthAmount = 0
             }
-            room.send(`In addition ${user}, cast a fireball **dealing ${damage}** piercing **damage**, which leaves him at **${healthAmount} health**!`)
+            room.send(`In addition ${user}, cast a fireball **dealing ${damage}** piercing **damage**, which leaves his opponent at **${healthAmount} health**!`)
             if(isDead(activeFights[fightIndex][opIndex])) {
               finishFight(fightIndex, playerIndex, user, room)
               fightOn = false
@@ -367,8 +367,10 @@ const finishFight = (fightIndex, playerIndex, winner, room) => {
   clearTimeout(activeFights[fightIndex][2].battleTimer)
   activeFights.splice(fightIndex, 1)
 
-  afterFightUpdate(fighter1.id, fighter2.id).then((winstreak) => {
-    room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a ${winstreak} winstreak.`)
+  const prize = Math.floor(Math.random() * 30)
+
+  afterFightUpdate(fighter1.id, fighter2.id, prize).then((winstreak) => {
+    room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a **${winstreak} winstreak** and **eartned ${prize}$**.`)
   }).catch((error) => {
     room.send(error)
   })

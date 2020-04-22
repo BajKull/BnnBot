@@ -234,4 +234,8 @@ const isAnimal = (str) => {
   return(animals.find(el => el.toLowerCase() === animal))
 }
 
-module.exports = { isAnimal }
+const animalList = () => {
+  return(animals.join(', '))
+}
+
+module.exports = { isAnimal, animalList }
