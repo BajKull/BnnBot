@@ -1,8 +1,6 @@
 const Discord = require('discord.js')
 let activePoll = null
 
-const isPollActive = () => activePoll
-
 const vote = (user, msg) => {
   const option = msg.split(' ')[2]
   if(activePoll) {

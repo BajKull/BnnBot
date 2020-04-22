@@ -8,6 +8,7 @@ const showHelp = (msg) => {
     .setColor([128, 0, 128])
     .setTitle(command)
     
+  const commandList = ['balance', 'class', 'classinfo', 'collect', 'fight', 'flip', 'highlow', 'help', 'info', 'pic', 'piclist', 'poll', 'roll', 'vote']
   if(command === 'help') 
     list.setDescription('Displays list of available commands')
   else if(command === 'balance') 
@@ -56,7 +57,8 @@ const showHelp = (msg) => {
   }
   else {
     list.setTitle('Available commands:')
-    .setDescription('bnn help \nbnn balance \nbnn class \nbnn classinfo \nbnn fight \nbnn info \nbnn pic \nbnn piclist \nbnn roll \nbnn poll \nbnn vote \nbnn collect \nbnn highlow \nbnn flip')
+    .setDescription(commandList.map(x => `bnn ${x}\n`).join(''))
+    .setFooter('You can also check what specific commands do! \nExample use: bnn help vote')
   }
   return(list)
 }
