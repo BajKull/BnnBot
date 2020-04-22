@@ -35,8 +35,8 @@ client.on('message', message => {
     message.channel.send(rollDice(message.content))
   
   else if(message.content.startsWith(`${prefix} piclist`)) {
-    
     message.author.send(animalList())
+    message.react('🦆')
   }
 
   else if(message.content.startsWith(`${prefix} flip`)) 
@@ -53,8 +53,7 @@ client.on('message', message => {
       message.channel.send(rejected)
     })
 
-    else if(message.content.startsWith(`${prefix} collect`)) 
-      // message.channel.send(collectMoney(message.author))
+    else if(message.content.startsWith(`${prefix} collect`))
       collectMoney(message.author).then(accepted => {
         message.channel.send(accepted)
       }).catch(rejected => {
@@ -68,13 +67,12 @@ client.on('message', message => {
       message.channel.send(rejected)
     })
 
-  else if(message.content.startsWith(`${prefix} class`)) {
+  else if(message.content.startsWith(`${prefix} class`)) 
     updateUser(message.author, message.content).then(accepted => {
       message.channel.send(accepted)
     }).catch(rejected => {
       message.channel.send(rejected)
     })
-  }
  
   else if(message.content.startsWith(`${prefix} fight`)) {
     const opponent = message.mentions.members.first()

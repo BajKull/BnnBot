@@ -122,6 +122,7 @@ const animals = [
   "Locust",
   "Loris",
   "Louse",
+  "Lynx",
   "Lyrebird",
   "Magpie",
   "Mallard",
