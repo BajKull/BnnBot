@@ -370,7 +370,7 @@ const finishFight = (fightIndex, playerIndex, winner, room) => {
   const prize = Math.floor(Math.random() * 30)
 
   afterFightUpdate(fighter1.id, fighter2.id, prize).then((winstreak) => {
-    room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a **${winstreak} winstreak** and **eartned ${prize}$**.`)
+    room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a **${winstreak} winstreak** and **earned ${prize}$**.`)
   }).catch((error) => {
     room.send(error)
   })

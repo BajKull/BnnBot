@@ -95,7 +95,7 @@ client.on('message', message => {
       })
     }
     else 
-      message.channel.send(`Not on list :duck:. Type **bnn pic *animal***. Not every animal is listed though. Example: bnn pic duck`)
+      message.channel.send(`Not on list :duck:. Type **bnn pic *animal***. Not every animal is listed though. Type bnn piclist to see available animals. Example: bnn pic duck`)
   }
 
   else if(message.content.startsWith(`${prefix} vote`)) {

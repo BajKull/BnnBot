@@ -219,5 +219,12 @@ const coinFlip = (msg) => {
 
 // coin flip
 
-// 
+// ruletka
+
+// invest
+
+// stonks?
+
+// foodporn
+
 module.exports = { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip }
