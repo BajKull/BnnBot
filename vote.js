@@ -60,9 +60,7 @@ const pollTimer = () => {
     if(activePoll.justCreated) {
       return new Promise((accepted, rejected) => {
         if(activePoll) {
-          setTimeout(() => {
-            accepted(endPoll())
-          }, 30000)
+          setTimeout(() => { accepted(endPoll()) }, 30000)
           activePoll.justCreated = false
         }
         else

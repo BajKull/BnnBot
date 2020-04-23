@@ -4,7 +4,7 @@ const Fetch = require('node-fetch')
 const getRedditImage = (msg) => {
   const subreddits = ['foodporn', 'food', 'pizza', 'baking']
   const index = Math.floor(Math.random() * subreddits.length)
-  const url = `https://www.reddit.com/r/${subreddits[index]}.json?sort=top&t=day`
+  const url = `https://www.reddit.com/r/${subreddits[index]}.json?sort=top&t=day&limit=75`
 
   return new Promise((accepted, rejected) => {
     Fetch(url).then(results => results.json()).then(body => {

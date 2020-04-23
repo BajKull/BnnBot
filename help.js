@@ -8,7 +8,7 @@ const showHelp = (msg) => {
     .setColor([128, 0, 128])
     .setTitle(command)
     
-  const commandList = ['balance', 'class', 'classinfo', 'collect', 'fight', 'flip', 'highlow', 'help', 'info', 'pic', 'piclist', 'porn', 'poll', 'roll', 'vote']
+  const commandList = ['balance', 'class', 'classinfo', 'collect', 'fight', 'flip', 'highlow', 'heist', 'help', 'info', 'pic', 'piclist', 'porn', 'poll', 'roll', 'vote']
   if(command === 'balance') 
     list.setDescription('Displays balance of your account if you\'re a member of the fighting club. To join the fighting club type bnn class. Available classes and their stats under bnn classinfo.')
   else if(command === 'class') {
@@ -39,6 +39,11 @@ const showHelp = (msg) => {
     list.setFooter('Example use: bnn highlow 10')
   }
 
+  else if(command === 'heist') {
+    list.setDescription(`Allows you to attempt a heist. Whoever goes first, starts a 60 seconds timer. While the timer is running any member of the fighting club can join the heist in order to earn money! If only one person is attempting a heist, it's an automatical loose, otherwise you get a chance to win 2x, 3x, 5x the money you put in after the timer goes out!`)
+    list.setFooter('Example use: bnn heist 50')
+  }
+
   else if(command === 'help') 
     list.setDescription('Displays list of available commands')
 
@@ -53,8 +58,8 @@ const showHelp = (msg) => {
     list.setDescription('Sends you a list of animals the bot can send. It\'ll be a private message in order not to make too much mess in the server chat.')
 
   else if(command === 'porn')
-    list.setDescription('Sends you naught pictures.')
-    
+    list.setDescription('Sends you naughty pictures.')
+
   else if(command === 'poll') {
     list.setDescription('Allows you to create a poll. It will automatically end after 30 seconds. In order to vote type *bnn vote 2* or check *bnn help vote* for more info.')
     list.setFooter('Example use: bnn poll Do you like ducks ? yes no')

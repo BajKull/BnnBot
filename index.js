@@ -9,7 +9,7 @@ const { getImage } = require('./images.js')
 const { isAnimal, animalList } = require('./animals.js')
 const { rollDice } = require('./random.js')
 const { vote, poll, pollTimer } = require('./vote.js')
-const { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip } = require('./money.js')
+const { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip, heist, heistEnd } = require('./money.js')
 const { getRedditImage } = require('./reddit.js')
 
 client.once('ready', () => {
@@ -23,8 +23,11 @@ client.on('message', message => {
     fightAction(ans, message.author, message.channel)
   }
 
-  else if(isGambling(message.author))
-    message.channel.send(gamble(message))
+  else if(isGambling(message.author)) {
+    const msg = gamble(message)
+    if(msg)
+      message.channel.send(msg)
+  }
 
   else if(message.content.startsWith(`${prefix} help`))
     message.channel.send(showHelp(message))
@@ -46,7 +49,7 @@ client.on('message', message => {
     }).catch(rejected => {
       message.channel.send(rejected)
     })
-    
+
   else if(message.content.startsWith(`${prefix} flip`)) 
     coinFlip(message).then(accepted => {
       message.channel.send(accepted)
@@ -127,6 +130,20 @@ client.on('message', message => {
   else if(message.content.startsWith(`${prefix} highlow`)) {
     higherLower(message).then(accepted => {
       message.channel.send(accepted)
+    }).catch(rejected => {
+      message.channel.send(rejected)
+    })
+  }
+
+  else if(message.content.startsWith(`${prefix} heist`)) {
+    heist(message).then(accepted => {
+      message.channel.send(accepted[0])
+      if(accepted[1])
+        heistEnd().then(accepted => {
+          message.channel.send(accepted)
+        }).catch(rejected => {
+          message.channel.send(rejected)
+        })
     }).catch(rejected => {
       message.channel.send(rejected)
     })
