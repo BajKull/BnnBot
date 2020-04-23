@@ -10,6 +10,7 @@ const { isAnimal, animalList } = require('./animals.js')
 const { rollDice } = require('./random.js')
 const { vote, poll, pollTimer } = require('./vote.js')
 const { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip } = require('./money.js')
+const { getRedditImage } = require('./reddit.js')
 
 client.once('ready', () => {
   client.user.setActivity("bnn help")
@@ -33,12 +34,19 @@ client.on('message', message => {
 
   else if(message.content.startsWith(`${prefix} roll`)) 
     message.channel.send(rollDice(message.content))
-  
+
   else if(message.content.startsWith(`${prefix} piclist`)) {
     message.author.send(animalList())
     message.react('🦆')
   }
-
+    
+  else if(message.content.startsWith(`${prefix} porn`)) 
+    getRedditImage(message).then(accepted => {
+      message.channel.send(accepted)
+    }).catch(rejected => {
+      message.channel.send(rejected)
+    })
+    
   else if(message.content.startsWith(`${prefix} flip`)) 
     coinFlip(message).then(accepted => {
       message.channel.send(accepted)
