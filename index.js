@@ -86,7 +86,7 @@ client.on('message', message => {
     })
  
   else if(message.content.startsWith(`${prefix} fight`)) {
-    const opponent = message.mentions.members.first()
+    const opponent = message.mentions.members.first().user
     if(isInFight(opponent))
       message.channel.send(`${opponent} is already in fight, wait your turn or fight someone else!`)
     else if(message.author === opponent)

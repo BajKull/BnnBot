@@ -31,7 +31,7 @@ const addMoney = (user) => {
   const amount = Math.floor(Math.random() * 15)
   return new Promise((accepted, rejected) => {
     addBalance(user, amount).then(balance => {
-      accepted(`You collected ${amount} cans which gives you ${balance}$ in total`)
+      accepted(`You collected ${amount} cans. Your new balance is ${balance}$`)
     }).catch(error => {
       rejected(error)
     })
