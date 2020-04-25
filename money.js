@@ -366,7 +366,7 @@ const jackpot = (msg) => {
           }
           const winningUser = msg.client.users.resolve(winner.id)
           accepted(`Jackpot ended! The winner is ${winningUser}! Money in the pool: **${entries}$**`)
-        }, 10000)
+        }, 30000)
       }).then(accepted => {
         msg.channel.send(accepted)
       }).catch(rejected => {
