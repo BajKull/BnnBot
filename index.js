@@ -9,7 +9,7 @@ const { getImage } = require('./images.js')
 const { isAnimal, animalList } = require('./animals.js')
 const { rollDice } = require('./random.js')
 const { vote, poll, pollTimer } = require('./vote.js')
-const { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip, heist, heistEnd } = require('./money.js')
+const { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip, heist, heistEnd, jackpot } = require('./money.js')
 const { getRedditImage } = require('./reddit.js')
 
 client.once('ready', () => {
@@ -86,7 +86,7 @@ client.on('message', message => {
     })
  
   else if(message.content.startsWith(`${prefix} fight`)) {
-    const opponent = message.mentions.members.first().user
+    const opponent = message.mentions.users.first()
     if(isInFight(opponent))
       message.channel.send(`${opponent} is already in fight, wait your turn or fight someone else!`)
     else if(message.author === opponent)
@@ -148,6 +148,9 @@ client.on('message', message => {
       message.channel.send(rejected)
     })
   }
+
+  else if(message.content.startsWith(`${prefix} jackpot`))
+    jackpot(message)
 
   else if(message.content.startsWith(`${prefix}`))
     message.channel.send('Invalid command. To see the list of commands type *bnn help*')

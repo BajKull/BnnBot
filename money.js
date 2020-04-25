@@ -83,11 +83,13 @@ const gamble = (msg) => {
   const gambler = activeGamblers.find(gambler => gambler.id === user.id)
   const index = activeGamblers.indexOf(gambler)
   const whichGame = gambler.game
-  if(msg.content.startsWith('bnn highlow') || msg.content.startsWith('bnn heist')) {
+  if(msg.content.startsWith('bnn highlow') || msg.content.startsWith('bnn heist') || msg.content.startsWith('bnn jackpot')) {
     if(whichGame === 'highlow')
       return(`${msg.author}, you are already playing ${whichGame}! Your current number is **${activeGamblers[index].number}** and your stake is **${activeGamblers[index].currentStake}**. Type **higher**, **lower** to continue the game or **finish** to take your money.`)
     else if(whichGame === 'heist')
       return(`${msg.author}, you are already attempting a heist! Prepare your gun instead of trying to gamble!`)
+    else if(whichGame === 'jackpot')
+      jackpot(msg)
   }
   if(whichGame === 'highlow')
     return(continueHigherLower(action, user, index))
@@ -220,8 +222,6 @@ const coinFlip = (msg) => {
 
 // heist, kilka osob wchodzi np za 300, 300, 300, 300, pula rosnie x2, albo zeruje sie, i hajs rozdzielany randomowo
 
-
-// 55lose, 30x2, 10x3 5x5?
 const heist = (msg) => {
   const user = msg.author
   const amount = parseInt(msg.content.split(' ')[2])
@@ -241,8 +241,6 @@ const heist = (msg) => {
             id: user.id,
             game: 'heist',
             startingAmount: amount,
-            currentStake: null,
-            number: null
           }
           activeGamblers.push(player)
           if(creator)
@@ -296,10 +294,95 @@ const heistEnd = () => {
 
 }
 
+const jackpot = (msg) => {
+  const user = msg.author
+  const amount = parseInt(msg.content.split(' ')[2])
+
+  new Promise((accepted, rejected) => {
+    if(isNaN(amount))
+      rejected(`${user}, that's not how you enter a jackpot! Type *bnn jackpot amount* to join! More info under bnn help jackpot.`)
+    else if(amount <= 0)
+      rejected(`${user}, you have to enter with at least 1$`)
+    else {
+      getUser(user.id).then(gambler => {
+        if(gambler.money < amount)
+          rejected(`${user}, you don't have that much money! Your balance is **${gambler.money}$**`)
+        else {
+          addBalance(user, amount * -1).then(() => {
+            console.log("asd")
+            const jackpotPlayers = activeGamblers.filter(gambler => gambler.game === 'jackpot')
+            if(jackpotPlayers.length === 0) {
+              const player = {
+                id: user.id,
+                game: 'jackpot',
+                currentStake: amount
+              }
+              activeGamblers.push(player)
+              accepted([`You created a new jackpot! Tell others to join you by typing *bnn jackpot amount*! Remember, there's only one winner that takes all the money in the jackpot! There's **${amount}$ in the jackpot** in total!`, true])
+            }
+            else {
+              const sum = jackpotPlayers.reduce((acc, p) => { return acc + p.currentStake }, 0) + amount
+              const alreadyPlayer = jackpotPlayers.find(el => el.id === user.id)
+              if(alreadyPlayer) {
+                const index = activeGamblers.indexOf(alreadyPlayer)
+                const contribution = activeGamblers[index].currentStake + amount
+                activeGamblers[index].currentStake = contribution
+                accepted([`You throw in additional ${amount}$. Your contribution to the jackpot: ${contribution}$. There's **${sum}$ in the jackpot** in total!`, false])
+              }
+              else {
+                const player = {
+                  id: user.id,
+                  game: 'jackpot',
+                  currentStake: amount
+                }
+                activeGamblers.push(player)
+                accepted([`You join the jackpot with ${amount}$ There's **${sum}$ in the jackpot** in total!`, false])
+              }
+            }
+
+          }).catch(error => rejected(error))
+        }
+      })
+    }
+  }).then(accepted => {
+    msg.channel.send(accepted[0])
+    if(accepted[1]) {
+      new Promise((accepted, rejected) => {
+        setTimeout(() => {
+          const jackpotPlayers = activeGamblers.filter(gambler => gambler.game === 'jackpot')
+          const entries = jackpotPlayers.reduce((acc, p) => { return acc + p.currentStake }, 0)
+          const winningTicket = Math.floor(Math.random() * entries) + 1
+          let currentTicket = 0
+          let winner = null
+          for(const player of jackpotPlayers) {
+            if(winner === null)
+              currentTicket += player.currentStake
+            if(currentTicket >= winningTicket) {
+              winner = player
+              currentTicket = 0
+              addBalance(player, entries).catch(error => rejected(error))
+            }
+            activeGamblers.splice(activeGamblers.indexOf(player), 1)
+          }
+          const winningUser = msg.client.users.resolve(winner.id)
+          accepted(`Jackpot ended! The winner is ${winningUser}! Money in the pool: **${entries}$**`)
+        }, 10000)
+      }).then(accepted => {
+        msg.channel.send(accepted)
+      }).catch(rejected => {
+        msg.channel.send(rejected)
+      })
+    }
+  }).catch(rejected => {
+    msg.channel.send(rejected)
+  })
+
+}
+
 // ruletka
 
 // invest
 
 // stonks?
 
-module.exports = { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip, heist, heistEnd }
+module.exports = { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip, heist, heistEnd, jackpot }
