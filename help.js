@@ -85,7 +85,7 @@ const showHelp = (msg) => {
 
 const showInfo = (user) => {
   return new Promise((accepted, error) => {
-    getUser(user.id).then((player) => {
+    getUser(user).then((player) => {
       if(player) { 
         const stats = new Discord.MessageEmbed()
           .setAuthor(user.username, user.displayAvatarURL())

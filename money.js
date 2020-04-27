@@ -9,7 +9,7 @@ const isGambling = (user) => { return activeGamblers.find(gambler => gambler.id 
 
 const showBalance = (user) => {
   return new Promise((accepted, rejected) => {
-    getUser(user.id).then(account => {
+    getUser(user).then(account => {
       if(!account)
         rejected(`${user} you idiot, how do you want to look at your balance if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are *${getClassNames()}*.`)
       else {
@@ -104,7 +104,7 @@ const higherLower = (msg) => {
     else if(amount < 4)
       rejected('You have to play with at least 4$')
     else {
-      getUser(user.id).then(gambler => {
+      getUser(user).then(gambler => {
         if(!gambler)
           rejected(`${user} you idiot, how do you want to gamble without an account? Join the fighting club and we''l give you one for free! To join the club type *bnn class ...*. Available classess are *${getClassNames()}*.`)
         else {
@@ -187,7 +187,7 @@ const coinFlip = (msg) => {
       else if(amount <= 0)
         rejected(`${user}, you bastard, bet some money on it! Type bnn flip *side* *amount* to play, for example bnn flip heads 10.`)
       else {
-        getUser(user.id).then(gambler => {
+        getUser(user).then(gambler => {
           if(gambler.money < amount)
             rejected(`${user} ,you don't have enough money in your account! Go collect some cans! Your current balance is **${gambler.money}$**`)
           else {
@@ -232,7 +232,7 @@ const heist = (msg) => {
     else if(amount <= 0)
       rejected(`You need to commit with some of your money! Type *bnn help heist* for more info.`)
     else {
-      getUser(user.id).then(gambler => {
+      getUser(user).then(gambler => {
         if(gambler.money < amount)
           rejected(`You don\'t have that much money! Your current **balance: ${gambler.money}$**`)
         else {
@@ -304,7 +304,7 @@ const jackpot = (msg) => {
     else if(amount <= 0)
       rejected(`${user}, you have to enter with at least 1$`)
     else {
-      getUser(user.id).then(gambler => {
+      getUser(user).then(gambler => {
         if(gambler.money < amount)
           rejected(`${user}, you don't have that much money! Your balance is **${gambler.money}$**`)
         else {
@@ -379,10 +379,41 @@ const jackpot = (msg) => {
 
 }
 
+const donate = (msg) => {
+  const user = msg.author
+  const user2 = msg.mentions.users.first()
+  const amount = parseInt(msg.content.split(' ')[2])
+
+  if(!user2)
+    msg.channel.send(`Who do you want to donate to? Tag someone, by typing *bnn donate amount @nickname* !`)
+  else {
+    if(isNaN(amount))
+      msg.channel.send(`You have to type how much you want to donate! Type *bnn donate amount @nickname* to donate!`)
+    else if(amount <= 0)
+      msg.channel.send(`You have to donate at least 1$!`)
+    else {
+      getUser(user).then(donator => {
+        if(donator.money < amount)
+          msg.channel.send(`${user}, you don't have that much money! Your current **balance: ${donator.money}$**`)
+        else {
+          getUser(user2).then(accepted => {
+            addBalance(user, amount * -1).catch(error => { msg.channel.send(error) })
+            addBalance(user2, amount).catch(error => { msg.channel.send(error) })
+            msg.channel.send(`Donation successful! To check your new balance type *bnn balance*`)
+          }).catch(error => {
+            msg.channel.send(error)
+          })
+        }
+      })
+    }
+  }
+  
+}
+
 // ruletka
 
 // invest
 
 // stonks?
 
-module.exports = { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip, heist, heistEnd, jackpot }
+module.exports = { showBalance, collectMoney, isGambling, gamble, higherLower, coinFlip, heist, heistEnd, jackpot, donate }

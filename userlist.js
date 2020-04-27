@@ -38,23 +38,23 @@ const updateUser = (user, msg) => {
   }
   else
     return new Promise((error) => {
-      error(`${user}, you idiot... Available classes are *warrior*, *mage*, *druid*, *rogue*, no other options! Type bnn class *classname*. If you want to find out what classes do type *bnn classinfo*`)
+      error(`${user}, you idiot... Available classes are *warrior*, *mage*, *druid*, *rogue*, no other options! Type *bnn class classname*. If you want to find out what classes do type *bnn classinfo*`)
     })
 }
 
-const getUser = (id) => {
-  return new Promise((user, error) => {
-    pool.query(`SELECT * FROM users WHERE id = ${id}`, (errorMsg, results) => {
-      if(errorMsg) {
-        console.log(errorMsg)
-        error('Couldn\'t connect to the database, try again later')
+const getUser = (user) => {
+  return new Promise((accepted, rejected) => {
+    pool.query(`SELECT * FROM users WHERE id = ${user.id}`, (error, results) => {
+      if(error) {
+        console.log(error)
+        rejected('Couldn\'t connect to the database, try again later')
       }
       else {
         if(results[0]) {
-          user(results[0])
+          accepted(results[0])
         }
         else
-          user(null)
+          rejected(`${user} is not a member of the fighting club! Tell this idiot to join by typing *bnn class classname* If you want to find out what classes do type *bnn classinfo*`)
       }
     })
   })

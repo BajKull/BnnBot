@@ -9,12 +9,12 @@ const Discord = require('discord.js')
 
 const fight = (player1, player2, room) => {
   // get player1
-  getUser(player1.id).then((fighter1) => {
+  getUser(player1).then((fighter1) => {
     if(!fighter1)
       room.send(`${player1} you idiot, choose a class first. To do so type *bnn class ...*. Available classess are *${getClassNames()}*.`)
     else {
       // get player2 if player1 is in database
-      getUser(player2.id).then((fighter2) => {
+      getUser(player2).then((fighter2) => {
         if(!fighter2)
           room.send(`${player2} is not a member of this fighting community. Tell this idiot to choose his class. To do so type *bnn class ...*. Available classess are *${getClassNames()}*.`)
         else {
