@@ -1,5 +1,5 @@
 const Discord = require('discord.js')
-const { getUser } = require('./userlist.js')
+const { getUser, getTopTenList } = require('./userlist.js')
 
 const showHelp = (msg) => {
   const command = msg.content.split(' ')[2]
@@ -8,7 +8,7 @@ const showHelp = (msg) => {
     .setColor([128, 0, 128])
     .setTitle(command)
     
-  const commandList = ['balance', 'class', 'classinfo', 'collect', 'fight', 'flip', 'highlow', 'heist', 'help', 'info', 'pic', 'piclist', 'porn', 'poll', 'roll', 'vote']
+  const commandList = ['balance', 'class', 'classinfo', 'collect', 'donate', 'fight', 'flip', 'highlow', 'heist', 'help', 'info', 'jackpot', 'pic', 'piclist', 'porn', 'poll', 'roll', 'top10', 'vote']
   if(command === 'balance') 
     list.setDescription('Displays balance of your account if you\'re a member of the fighting club. To join the fighting club type bnn class. Available classes and their stats under bnn classinfo.')
   else if(command === 'class') {
@@ -23,6 +23,11 @@ const showHelp = (msg) => {
 
   else if(command === 'collect') 
     list.setDescription('Allows you to earn money which is used to gamble or level up your profile!')
+  
+  else if(command === 'donate') {
+    list.setDescription('Allows you to transfer money to someone else!')
+    list.setFooter('Example use: bnn donate 10 @nickname')
+  }
 
   else if(command === 'fight') {
     list.setDescription('Allows you to fight other members of the fighting club. It consists of two phases. First you get 3 trivia questions per player, which if you answer correctly you will be awarded with items boosting your stats. Then you fight. Winner gets some money. Results are recorded. Fight ends after 15 minutes if you can\'t finish it earlier, your turn is skipped if you afk for 30 seconds.')
@@ -50,10 +55,16 @@ const showHelp = (msg) => {
   else if(command === 'info')
     list.setDescription('Displays all of your stats if you\'re a member of the fighting club. To join the fighting club type bnn class. Available classes and their stats under bnn classinfo.')
 
+  else if(command === 'jackpot') {
+    list.setDescription('Allows you to play jackpot with your friends! First person that types *bnn jackpot amount*, creates a jackpot which everyone can join. The more money you join with, the higher your chances of winning are. One person gathers all the money everyone entered with, everyone else looses! For example: if person X joins with 70$, person Y joins with 20$, person Z joins with 10$, their chances of winning are respectively: 70%, 20%, 10%.')
+    list.setFooter('Example use: bnn jackpot 20')
+  }
+
   else if(command === 'pic') {
     list.setDescription('Sends you a picture of an animal. To see list of available animals type bnn piclist')
     list.setFooter('Example use: bnn pic duck')
   }
+  
   else if(command === 'piclist')
     list.setDescription('Sends you a list of animals the bot can send. It\'ll be a private message in order not to make too much mess in the server chat.')
 
@@ -69,6 +80,9 @@ const showHelp = (msg) => {
     list.setDescription('Allows you to roll a number or roll dice.')
     list.setFooter('Example use: bnn roll 3 20')
   }
+
+  else if(command === 'top10')
+    list.setDescription('Shows you top 10 list of the richest fighters!')
   
   else if(command === 'vote') {
     list.setDescription('Allows you to vote in a poll. You can vote either by typing *option number* or *option message*. You can\'t vote twice in a single poll so choose wisely!')
@@ -97,10 +111,24 @@ const showInfo = (user) => {
       else 
         error(`${user} you must first choose your class to join the fighting game. To do so type *bnn class ...*. Available classess are: *${getClassNames()}*`)
     }).catch((errorMsg) => {
-      console.log(errorMsg)
       error(`Couldn\'t connect to the database, try again later`)
     })
   })
 }
 
-module.exports = { showHelp, showInfo }
+const top10Money = (msg) => {
+  const user = msg.author
+  getTopTenList('money').then(moneyList => {
+    const list = moneyList.map(x => x.name + ': ' + x.money + '$').join('\n')
+    const stats = new Discord.MessageEmbed()
+      .setAuthor(user.username, user.displayAvatarURL())
+      .setColor([128, 0, 128])
+      .setTitle('Top 10 money list')
+      .setDescription(list)
+    msg.channel.send(stats)
+  }).catch(error => {
+    msg.channel.send(error)
+  })
+}
+
+module.exports = { showHelp, showInfo, top10Money }

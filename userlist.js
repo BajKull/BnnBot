@@ -10,18 +10,6 @@ let pool = mysql.createPool({
   multipleStatements: true,
 })
 
-
-// if connection ends, reconnect
-// connection.on('error', (error) => {
-//   console.log(error)
-//   connection = mysql.createConnection({
-//     host: 'remotemysql.com',
-//     user: `${dblogin}`,
-//     password: `${dbpassword}`,
-//     database: `${dblogin}`,
-//   })
-// })
-
 const updateUser = (user, msg) => {
   const userClass = msg.split(' ')[2]
   if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
@@ -96,4 +84,15 @@ const addBalance = (user, amount) => {
   })
 }
 
-module.exports = { updateUser, getUser, afterFightUpdate, addBalance }
+const getTopTenList = (order) => {
+  return new Promise((accepted, rejected) => {
+    pool.query(`SELECT * FROM users ORDER BY ${order} DESC LIMIT 10`, (error, results) => {
+      if(error) 
+        rejected('Couldn\'t connect to the database, try again later')
+      else 
+        accepted(results)
+    })
+  })
+}
+
+module.exports = { updateUser, getUser, afterFightUpdate, addBalance, getTopTenList }

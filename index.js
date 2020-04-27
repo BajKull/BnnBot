@@ -3,7 +3,7 @@ const { prefix, token } = require('./config.json')
 const client = new Discord.Client()
 
 const { fight, isInFight, fightAction, displayClassStats } = require('./fighting.js')
-const { showHelp, showInfo } = require('./help.js')
+const { showHelp, showInfo, top10Money } = require('./help.js')
 const { updateUser } = require('./userlist.js')
 const { getImage } = require('./images.js')
 const { isAnimal, animalList } = require('./animals.js')
@@ -154,6 +154,9 @@ client.on('message', message => {
 
   else if(message.content.startsWith(`${prefix} donate`))
     donate(message)
+  
+  else if(message.content.startsWith(`${prefix} top10`))
+    top10Money(message)
 
   else if(message.content.startsWith(`${prefix}`))
     message.channel.send('Invalid command. To see the list of commands type *bnn help*')
