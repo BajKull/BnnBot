@@ -9,8 +9,8 @@ client.once('ready', () => {
   console.log("ready")
 })
 
-// client.on('message', message => {
-//   functions.forEach(fun => fun(message))
-// })
+client.on('message', message => {
+  functions.forEach(fun => fun(message))
+})
 
 client.login(token)
