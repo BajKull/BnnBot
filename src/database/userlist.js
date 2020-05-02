@@ -1,5 +1,5 @@
 const mysql = require('mysql')
-const { dblogin, dbpassword } = require('./config.json')
+const { prefix, dblogin, dbpassword } = require('../../config.json')
 
 let pool = mysql.createPool({
   connectionLimit: 10,
@@ -10,24 +10,29 @@ let pool = mysql.createPool({
   multipleStatements: true,
 })
 
-const updateUser = (user, msg) => {
-  const userClass = msg.split(' ')[2]
-  if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
-    return new Promise((accepted, rejected) => {
-      pool.query(`INSERT INTO users VALUES(\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE class = \'${userClass}\'`, (error) => {
-        if(error) {
-          console.log(error)
-          rejected('Couldn\'t connect to the database, try again later')
-        }
-        else
-          accepted(`${user} has changed his class, now fighting as a ${userClass}`)
+const updateUser = (msg) => {
+  if(msg.content.startsWith(`${prefix} class`) && msg.content.split(' ')[1] === 'class') {
+    const user = msg.author
+    const userClass = msg.content.split(' ')[2]
+    if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
+      new Promise((accepted, rejected) => {
+        pool.query(`INSERT INTO users VALUES(\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE class = \'${userClass}\'`, (error) => {
+          if(error) {
+            console.log(error)
+            rejected('Couldn\'t connect to the database, try again later')
+          }
+          else
+            accepted(`${user} has changed his class, now fighting as a ${userClass}`)
+        })
+      }).then(accepted => {
+        msg.channel.send(accepted)
+      }).catch(rejected => {
+        msg.channel.send(rejected)
       })
-    })
+    }
+    else
+      msg.channel.send(`${user}, you idiot... Available classes are *warrior*, *mage*, *druid*, *rogue*, no other options! Type *bnn class classname*. If you want to find out what classes do type *bnn classinfo*`)
   }
-  else
-    return new Promise((error) => {
-      error(`${user}, you idiot... Available classes are *warrior*, *mage*, *druid*, *rogue*, no other options! Type *bnn class classname*. If you want to find out what classes do type *bnn classinfo*`)
-    })
 }
 
 const getUser = (user) => {
@@ -41,7 +46,7 @@ const getUser = (user) => {
         if(results[0]) {
           accepted(results[0])
         }
-        else
+        else 
           rejected(`${user} is not a member of the fighting club! Tell this idiot to join by typing *bnn class classname* If you want to find out what classes do type *bnn classinfo*`)
       }
     })
@@ -89,6 +94,8 @@ const getTopTenList = (order) => {
     pool.query(`SELECT * FROM users ORDER BY ${order} DESC LIMIT 10`, (error, results) => {
       if(error) 
         rejected('Couldn\'t connect to the database, try again later')
+      else if(results.length === 0)
+        rejected('There are no fighters on this server yet! To join the club type *bnn class ...* To see what classes do type *bnn classinfo*')
       else 
         accepted(results)
     })

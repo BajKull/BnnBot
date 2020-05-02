@@ -1,3 +1,5 @@
+const { prefix } = require('../../config.json')
+
 const animals = [
   "Aardvark",
   "Albatross",
@@ -230,13 +232,13 @@ const animals = [
   "Zebra"
 ]
 
-const isAnimal = (str) => {
-  const animal = str.toLowerCase().split(' ')[2]
-  return(animals.find(el => el.toLowerCase() === animal))
-}
+const isAnimal = (animal) => animals.find(el => el.toLowerCase() === animal)
 
-const animalList = () => {
-  return(animals.join(', '))
+const animalList = (msg) => {
+  if(msg.content.startsWith(`${prefix} piclist`)) {
+    msg.author.send(animals.join(', '))
+    msg.react('🦆')
+  }
 }
 
 module.exports = { isAnimal, animalList }
