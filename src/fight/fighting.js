@@ -5,7 +5,7 @@ const { getUser, afterFightUpdate } = require('../database/userlist.js')
 const { prefix } = require('../../config.json')
 
 const Fetch = require('node-fetch')
-// const Canvas = require('canvas')
+const Canvas = require('canvas')
 const Discord = require('discord.js')
 
 const fight = (msg) => {
@@ -452,88 +452,88 @@ const displayClassStats = (msg) => {
 }
 
 const createCanvas = (fightIndex, room) => {
-//   const canvas = Canvas.createCanvas(600, 400)
-//   const context = canvas.getContext('2d')
+  const canvas = Canvas.createCanvas(600, 400)
+  const context = canvas.getContext('2d')
 
-//   const av1 = activeFights[fightIndex][0].avatar
-//   const av2 = activeFights[fightIndex][1].avatar
-//   context.drawImage(av1, 100, 20, 100, 100)
-//   context.drawImage(av2, 400, 20, 100, 100)
+  const av1 = activeFights[fightIndex][0].avatar
+  const av2 = activeFights[fightIndex][1].avatar
+  context.drawImage(av1, 100, 20, 100, 100)
+  context.drawImage(av2, 400, 20, 100, 100)
 
-//   context.font = '40px sans-serif';
-//   context.fillStyle = '#ffffff'
-//   context.fillText
-//   (`
-//   ⚔️  ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}
-//   🛡️  ${activeFights[fightIndex][0].stats.armor}
-//   ❤️  ${activeFights[fightIndex][0].stats.health}
-//  `, 25, 150)
+  context.font = '40px sans-serif';
+  context.fillStyle = '#ffffff'
+  context.fillText
+  (`
+  ⚔️  ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}
+  🛡️  ${activeFights[fightIndex][0].stats.armor}
+  ❤️  ${activeFights[fightIndex][0].stats.health}
+ `, 25, 150)
 
-//   context.font = '40px sans-serif';
-//   context.fillStyle = '#ffffff'
-//   context.fillText
-//   (`
-//   ⚔️  ${activeFights[fightIndex][1].stats.attack}-${activeFights[fightIndex][1].stats.attack + 50}
-//   🛡️  ${activeFights[fightIndex][1].stats.armor}
-//   ❤️  ${activeFights[fightIndex][1].stats.health}
-//  `, 325, 150) 
+  context.font = '40px sans-serif';
+  context.fillStyle = '#ffffff'
+  context.fillText
+  (`
+  ⚔️  ${activeFights[fightIndex][1].stats.attack}-${activeFights[fightIndex][1].stats.attack + 50}
+  🛡️  ${activeFights[fightIndex][1].stats.armor}
+  ❤️  ${activeFights[fightIndex][1].stats.health}
+ `, 325, 150) 
 
-//   const attachment = new Discord.MessageAttachment(canvas.toBuffer())
+  const attachment = new Discord.MessageAttachment(canvas.toBuffer())
 
-//   room.send('', attachment)
+  room.send('', attachment)
 }
 
 const createCanvasItem = (prevWeapon, prevShield, prevNecklace, weapon, shield, necklace, room) => {
-  // const canvas = Canvas.createCanvas(700, 300)
-  // const context = canvas.getContext('2d')
+  const canvas = Canvas.createCanvas(700, 300)
+  const context = canvas.getContext('2d')
 
-  // context.font = '30px sans-serif'
-  // context.fillStyle = '#ffffff'
-  // context.fillText(`SWORD`, 30, 100)
+  context.font = '30px sans-serif'
+  context.fillStyle = '#ffffff'
+  context.fillText(`SWORD`, 30, 100)
 
-  // context.font = '25px sans-serif'
-  // context.fillText(`⚔️ ${prevWeapon.attack} => `, 15, 150)
-  // context.fillStyle = (prevWeapon.attack > weapon.attack) ? '#e32b2b' : '#2be35c'
-  // context.fillText(`${weapon.attack}`, 135, 150)
+  context.font = '25px sans-serif'
+  context.fillText(`⚔️ ${prevWeapon.attack} => `, 15, 150)
+  context.fillStyle = (prevWeapon.attack > weapon.attack) ? '#e32b2b' : '#2be35c'
+  context.fillText(`${weapon.attack}`, 135, 150)
 
-  // context.font = '30px sans-serif'
-  // context.fillStyle = '#ffffff'
-  // context.fillText(`SHIELD`, 230, 100)
+  context.font = '30px sans-serif'
+  context.fillStyle = '#ffffff'
+  context.fillText(`SHIELD`, 230, 100)
 
-  // context.font = '25px sans-serif'
-  // context.fillText(`🛡️ ${prevShield.armor} => `, 215, 150)
-  // context.fillStyle = (prevShield.armor > shield.armor) ? '#e32b2b' : '#2be35c'
-  // context.fillText(`${shield.armor}`, 335, 150)
-  // context.fillStyle = '#ffffff'
-  // context.fillText(`❤️ ${prevShield.health} => `, 215, 200)
-  // context.fillStyle = (prevShield.health > shield.health) ? '#e32b2b' : '#2be35c'
-  // context.fillText(`${shield.health}`, 335, 200)
+  context.font = '25px sans-serif'
+  context.fillText(`🛡️ ${prevShield.armor} => `, 215, 150)
+  context.fillStyle = (prevShield.armor > shield.armor) ? '#e32b2b' : '#2be35c'
+  context.fillText(`${shield.armor}`, 335, 150)
+  context.fillStyle = '#ffffff'
+  context.fillText(`❤️ ${prevShield.health} => `, 215, 200)
+  context.fillStyle = (prevShield.health > shield.health) ? '#e32b2b' : '#2be35c'
+  context.fillText(`${shield.health}`, 335, 200)
 
-  // context.font = '30px sans-serif'
-  // context.fillStyle = '#ffffff'
-  // context.fillText(`NECKLACE`, 415, 100)
+  context.font = '30px sans-serif'
+  context.fillStyle = '#ffffff'
+  context.fillText(`NECKLACE`, 415, 100)
 
-  // context.font = '25px sans-serif'
-  // context.fillText(`⚔️ ${prevNecklace.attack} => `, 415, 150)
-  // context.fillStyle = (prevNecklace.attack > necklace.attack) ? '#e32b2b' : '#2be35c'
-  // context.fillText(`${necklace.attack}`, 535, 150)
-  // context.fillStyle = '#ffffff'
-  // context.fillText(`🛡️ ${prevNecklace.armor} => `, 415, 200)
-  // context.fillStyle = (prevNecklace.armor > necklace.armor) ? '#e32b2b' : '#2be35c'
-  // context.fillText(`${necklace.armor}`, 535, 200)
-  // context.fillStyle = '#ffffff'
-  // context.fillText(`❤️ ${prevNecklace.health} => `, 415, 250)
-  // context.fillStyle = (prevNecklace.health > necklace.health) ? '#e32b2b' : '#2be35c'
-  // context.fillText(`${necklace.health}`, 535, 250)
+  context.font = '25px sans-serif'
+  context.fillText(`⚔️ ${prevNecklace.attack} => `, 415, 150)
+  context.fillStyle = (prevNecklace.attack > necklace.attack) ? '#e32b2b' : '#2be35c'
+  context.fillText(`${necklace.attack}`, 535, 150)
+  context.fillStyle = '#ffffff'
+  context.fillText(`🛡️ ${prevNecklace.armor} => `, 415, 200)
+  context.fillStyle = (prevNecklace.armor > necklace.armor) ? '#e32b2b' : '#2be35c'
+  context.fillText(`${necklace.armor}`, 535, 200)
+  context.fillStyle = '#ffffff'
+  context.fillText(`❤️ ${prevNecklace.health} => `, 415, 250)
+  context.fillStyle = (prevNecklace.health > necklace.health) ? '#e32b2b' : '#2be35c'
+  context.fillText(`${necklace.health}`, 535, 250)
 
-  // const attachment = new Discord.MessageAttachment(canvas.toBuffer())
+  const attachment = new Discord.MessageAttachment(canvas.toBuffer())
 
-  // room.send('', attachment)
+  room.send('', attachment)
 }
 
 async function loadAvatars(user1, user2, fightIndex) {
-  // activeFights[fightIndex][0].avatar = await Canvas.loadImage(user1.client.users.resolve(user1.id).displayAvatarURL({ format: 'jpg' }))
-  // activeFights[fightIndex][1].avatar = await Canvas.loadImage(user2.client.users.resolve(user2.id).displayAvatarURL({ format: 'jpg' }))
+  activeFights[fightIndex][0].avatar = await Canvas.loadImage(user1.client.users.resolve(user1.id).displayAvatarURL({ format: 'jpg' }))
+  activeFights[fightIndex][1].avatar = await Canvas.loadImage(user2.client.users.resolve(user2.id).displayAvatarURL({ format: 'jpg' }))
 }
 
 const createReward = (user, room, fightIndex) => {
