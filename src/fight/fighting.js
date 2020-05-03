@@ -121,7 +121,6 @@ const fightAction = (msg) => {
           if(correct === 1) correct = 'b'
           if(correct === 2) correct = 'c'
           if(correct === 3) correct = 'd'
-          console.log(correct) //tutaj
           clearTimeout(activeFights[fightIndex][2].timer)
           activeFights[fightIndex][2].timer = setTimeout(() => abortFight(activeFights.length - 1, room, 2), 60000)
           activeFights[fightIndex][playerIndex].phase = 'answer'
@@ -309,7 +308,7 @@ const changePlayer = (fightIndex, playerIndex, room, afk) => {
     const opIndex = (playerIndex === 0) ? 1 : 0
     let nextPlayer = room.client.users.resolve(activeFights[fightIndex][opIndex].id)
 
-    if(round > 0) { //tutaj3
+    if(round > 3) {
       activeFights[fightIndex][opIndex].phase = 'fight'
       activeFights[fightIndex][playerIndex].phase = 'opponent'
       room.send(`${nextPlayer}, it's your turn to act! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds!`)
