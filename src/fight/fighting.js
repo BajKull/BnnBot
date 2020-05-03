@@ -5,7 +5,6 @@ const { getUser, afterFightUpdate } = require('../database/userlist.js')
 const { prefix } = require('../../config.json')
 
 const Fetch = require('node-fetch')
-const Canvas = require('canvas')
 const Discord = require('discord.js')
 
 const fight = (msg) => {
@@ -55,7 +54,6 @@ const fight = (msg) => {
                 armor: 0,
                 health: 0,
               },
-              avatar: null,
             }
   
             const user2 = Object.assign({}, user1)
@@ -78,7 +76,6 @@ const fight = (msg) => {
             }
   
             activeFights.push([user1, user2, info])
-            loadAvatars(player1, player2, activeFights.length - 1)
             msg.channel.send(`${player1}, ${player2} prepare for your fight!. \nTrivia time! Answer your questions correctly and you will be awarded! \n${player1}, choose the difficulty level of question by typing: **easy**, **medium** or **hard**. The harder the question, the better the reward`)
           }
         }).catch(rejected => {
@@ -124,6 +121,7 @@ const fightAction = (msg) => {
           if(correct === 1) correct = 'b'
           if(correct === 2) correct = 'c'
           if(correct === 3) correct = 'd'
+          console.log(correct) //tutaj
           clearTimeout(activeFights[fightIndex][2].timer)
           activeFights[fightIndex][2].timer = setTimeout(() => abortFight(activeFights.length - 1, room, 2), 60000)
           activeFights[fightIndex][playerIndex].phase = 'answer'
@@ -311,11 +309,11 @@ const changePlayer = (fightIndex, playerIndex, room, afk) => {
     const opIndex = (playerIndex === 0) ? 1 : 0
     let nextPlayer = room.client.users.resolve(activeFights[fightIndex][opIndex].id)
 
-    if(round > 3) {
+    if(round > 0) { //tutaj3
       activeFights[fightIndex][opIndex].phase = 'fight'
       activeFights[fightIndex][playerIndex].phase = 'opponent'
       room.send(`${nextPlayer}, it's your turn to act! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds!`)
-      createCanvas(fightIndex, room)
+      showFightingStats(fightIndex, room)
       clearTimeout(activeFights[fightIndex][2].timer)
       activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, opIndex, room, true), 30000)
     }
@@ -341,7 +339,7 @@ const changePlayer = (fightIndex, playerIndex, room, afk) => {
             activeFights[fightIndex][0].phase = 'opponent'
             activeFights[fightIndex][1].phase = 'fight'
           }
-          createCanvas(fightIndex, room)
+          showFightingStats(fightIndex, room)
           clearTimeout(activeFights[fightIndex][2].timer)
           activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, playerIndex, room, true), 30000)
           activeFights[fightIndex][2].battleTimer = setTimeout(() => abortFight(fightIndex, room, errorCode = 3), 900000)
@@ -451,89 +449,44 @@ const displayClassStats = (msg) => {
   }
 }
 
-const createCanvas = (fightIndex, room) => {
-  const canvas = Canvas.createCanvas(600, 400)
-  const context = canvas.getContext('2d')
+const showFightingStats = (fightIndex, room) => {
 
-  const av1 = activeFights[fightIndex][0].avatar
-  const av2 = activeFights[fightIndex][1].avatar
-  context.drawImage(av1, 100, 20, 100, 100)
-  context.drawImage(av2, 400, 20, 100, 100)
+  const nick1 = activeFights[fightIndex][0].name
+  const nick2 = activeFights[fightIndex][1].name
+  const at1 = `⚔️ ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}`
+  const ar1 = `🛡️ ${activeFights[fightIndex][0].stats.armor}`
+  const hp1 = `❤️ ${activeFights[fightIndex][0].stats.health}`
+  const at2 = `⚔️ ${activeFights[fightIndex][1].stats.attack}-${activeFights[fightIndex][1].stats.attack + 50}`
+  const ar2 = `🛡️ ${activeFights[fightIndex][1].stats.armor}`
+  const hp2 = `❤️ ${activeFights[fightIndex][1].stats.health}`
 
-  context.font = '40px sans-serif';
-  context.fillStyle = '#ffffff'
-  context.fillText
-  (`
-  ⚔️  ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}
-  🛡️  ${activeFights[fightIndex][0].stats.armor}
-  ❤️  ${activeFights[fightIndex][0].stats.health}
- `, 25, 150)
+  //u2003 = unicode for 1em width space
+  const msg = new Discord.MessageEmbed()
+    .setTitle(`${nick1}   |   ${nick2}`)
+    .setDescription(`${at1} \u2003 \u2003 ${at2}\n${ar1} \u2006\u2003 \u2003 \u2003 ${ar2}\n${hp1} \u2006\u2003 \u2003 \u2003 ${hp2}`)
+    .setColor([128, 0, 128])
 
-  context.font = '40px sans-serif';
-  context.fillStyle = '#ffffff'
-  context.fillText
-  (`
-  ⚔️  ${activeFights[fightIndex][1].stats.attack}-${activeFights[fightIndex][1].stats.attack + 50}
-  🛡️  ${activeFights[fightIndex][1].stats.armor}
-  ❤️  ${activeFights[fightIndex][1].stats.health}
- `, 325, 150) 
-
-  const attachment = new Discord.MessageAttachment(canvas.toBuffer())
-
-  room.send('', attachment)
+  room.send(msg)
 }
 
-const createCanvasItem = (prevWeapon, prevShield, prevNecklace, weapon, shield, necklace, room) => {
-  const canvas = Canvas.createCanvas(700, 300)
-  const context = canvas.getContext('2d')
+const showItemsStats = (prevWeapon, prevShield, prevNecklace, weapon, shield, necklace, room) => {
 
-  context.font = '30px sans-serif'
-  context.fillStyle = '#ffffff'
-  context.fillText(`SWORD`, 30, 100)
+  const at1 = `⚔️ ${prevWeapon.attack} => ${weapon.attack} ${(prevWeapon.attack > weapon.attack) ? '⚠️' : '✅'}`
+  const at3 = `⚔️ ${prevNecklace.attack} => ${necklace.attack} ${(prevNecklace.attack > necklace.attack) ? '⚠️' : '✅'}`
 
-  context.font = '25px sans-serif'
-  context.fillText(`⚔️ ${prevWeapon.attack} => `, 15, 150)
-  context.fillStyle = (prevWeapon.attack > weapon.attack) ? '#e32b2b' : '#2be35c'
-  context.fillText(`${weapon.attack}`, 135, 150)
+  const ar2 = `🛡️ ${prevShield.armor} => ${shield.armor} ${(prevShield.armor > shield.armor) ? '⚠️' : '✅'}`
+  const ar3 = `🛡️ ${prevNecklace.armor} => ${necklace.armor} ${(prevNecklace.armor > necklace.armor) ? '⚠️' : '✅'}`
 
-  context.font = '30px sans-serif'
-  context.fillStyle = '#ffffff'
-  context.fillText(`SHIELD`, 230, 100)
+  const hp2 = `❤️ ${prevShield.health} => ${shield.health} ${(prevShield.health > shield.health) ? '⚠️' : '✅'}`
+  const hp3 = `❤️ ${prevNecklace.health} => ${necklace.health} ${(prevNecklace.health > necklace.health) ? '⚠️' : '✅'}`
+  
+  const msg = new Discord.MessageEmbed()
+    .setColor('[128, 0, 128]')
+    .setTitle(`SWORD                     SHIELD                      NECKLACE`)
+    .setDescription(`${at1} \u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003 ${at3}\n\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003${ar2} \u2003\u2003\u2003 ${ar3}\n\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003${hp2} \u2003\u2003\u2003 ${hp3}`)
+    .setFooter(`Type 1 to claim sword, type 2 to claim shield, type 3 to claim necklace`)
 
-  context.font = '25px sans-serif'
-  context.fillText(`🛡️ ${prevShield.armor} => `, 215, 150)
-  context.fillStyle = (prevShield.armor > shield.armor) ? '#e32b2b' : '#2be35c'
-  context.fillText(`${shield.armor}`, 335, 150)
-  context.fillStyle = '#ffffff'
-  context.fillText(`❤️ ${prevShield.health} => `, 215, 200)
-  context.fillStyle = (prevShield.health > shield.health) ? '#e32b2b' : '#2be35c'
-  context.fillText(`${shield.health}`, 335, 200)
-
-  context.font = '30px sans-serif'
-  context.fillStyle = '#ffffff'
-  context.fillText(`NECKLACE`, 415, 100)
-
-  context.font = '25px sans-serif'
-  context.fillText(`⚔️ ${prevNecklace.attack} => `, 415, 150)
-  context.fillStyle = (prevNecklace.attack > necklace.attack) ? '#e32b2b' : '#2be35c'
-  context.fillText(`${necklace.attack}`, 535, 150)
-  context.fillStyle = '#ffffff'
-  context.fillText(`🛡️ ${prevNecklace.armor} => `, 415, 200)
-  context.fillStyle = (prevNecklace.armor > necklace.armor) ? '#e32b2b' : '#2be35c'
-  context.fillText(`${necklace.armor}`, 535, 200)
-  context.fillStyle = '#ffffff'
-  context.fillText(`❤️ ${prevNecklace.health} => `, 415, 250)
-  context.fillStyle = (prevNecklace.health > necklace.health) ? '#e32b2b' : '#2be35c'
-  context.fillText(`${necklace.health}`, 535, 250)
-
-  const attachment = new Discord.MessageAttachment(canvas.toBuffer())
-
-  room.send('', attachment)
-}
-
-async function loadAvatars(user1, user2, fightIndex) {
-  activeFights[fightIndex][0].avatar = await Canvas.loadImage(user1.client.users.resolve(user1.id).displayAvatarURL({ format: 'jpg' }))
-  activeFights[fightIndex][1].avatar = await Canvas.loadImage(user2.client.users.resolve(user2.id).displayAvatarURL({ format: 'jpg' }))
+  room.send(msg)
 }
 
 const createReward = (user, room, fightIndex) => {
@@ -566,7 +519,7 @@ const createReward = (user, room, fightIndex) => {
   activeFights[fightIndex][2].reward.shield = shield
   activeFights[fightIndex][2].reward.necklace = necklace
 
-  createCanvasItem(user.weapon, user.shield, user.necklace, weapon, shield, necklace, room)
+  showItemsStats(user.weapon, user.shield, user.necklace, weapon, shield, necklace, room)
 }
 
 module.exports = { fight, isInFight, getClassNames, fightAction, displayClassStats }
