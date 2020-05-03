@@ -4,7 +4,7 @@ const { getUser, addBalance } = require('../database/userlist.js')
 const { prefix } = require('../../config.json')
 
 const showBalance = (msg) => {
-  if(msg.content.startsWith(`${prefix} balance`))  {
+  if(msg.content.toLowerCase().startsWith(`${prefix} balance`))  {
     const user = msg.author
     new Promise(accepted => {
       getUser(user).then(account => {
@@ -24,7 +24,7 @@ const showBalance = (msg) => {
 }
 
 const collectMoney = (msg) => {
-  if(msg.content.startsWith(`${prefix} collect`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} collect`)) {
     const user = msg.author
     const lastCollected = collectedCD.find(el => el.id === user.id)
     const amount = Math.floor(Math.random() * 15)
@@ -78,7 +78,7 @@ const collectMoney = (msg) => {
 }
 
 const donate = (msg) => {
-  if(msg.content.startsWith(`${prefix} donate`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} donate`)) {
     const user = msg.author
     const user2 = msg.mentions.users.first()
     const amount = parseInt(msg.content.split(' ')[2])

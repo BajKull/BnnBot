@@ -11,7 +11,7 @@ let pool = mysql.createPool({
 })
 
 const updateUser = (msg) => {
-  if(msg.content.startsWith(`${prefix} class`) && msg.content.split(' ')[1] === 'class') {
+  if(msg.content.toLowerCase().startsWith(`${prefix} class`) && msg.content.split(' ')[1] === 'class') {
     const user = msg.author
     const userClass = msg.content.split(' ')[2]
     if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){

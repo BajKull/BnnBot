@@ -3,7 +3,7 @@ const Fetch = require('node-fetch')
 const { prefix } = require('../../config.json')
 
 const getRedditImage = (msg) => {
-  if(msg.content.startsWith(`${prefix} porn`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} porn`)) {
     const subreddits = ['foodporn', 'food', 'pizza', 'baking']
     const index = Math.floor(Math.random() * subreddits.length)
     const url = `https://www.reddit.com/r/${subreddits[index]}.json?sort=top&t=day&limit=75`

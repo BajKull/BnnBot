@@ -3,7 +3,7 @@ const { prefix } = require('../../config.json')
 let activePoll = null
 
 const vote = (msg) => {
-  if(msg.content.startsWith(`${prefix} vote`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} vote`)) {
     const user = msg.author
     const option = msg.content.split(' ')[2]
     if(activePoll) {
@@ -32,7 +32,7 @@ const vote = (msg) => {
 }
 
 const poll = (msg) => {
-  if(msg.content.startsWith(`${prefix} poll`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} poll`)) {
     const options = msg.content.split(' ').splice(2)
     const index = options.indexOf('?')
     if(index === -1)

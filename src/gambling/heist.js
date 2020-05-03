@@ -3,7 +3,7 @@ const { getUser, addBalance } = require('../database/userlist.js')
 const { activeGamblers, isGambling, alreadyGamblingMsg } = require('./activeGamblers.js')
 
 const heist = (msg) => {
-  if(msg.content.startsWith(`${prefix} heist`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} heist`)) {
     const user = msg.author
     const amount = parseInt(msg.content.split(' ')[2])
   

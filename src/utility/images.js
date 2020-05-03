@@ -6,7 +6,7 @@ const { isAnimal } = require('./animals.js')
 const { prefix } = require('../../config.json')
 
 const getImage = (msg) => {
-  if(msg.content.startsWith(`${prefix} pic`) && msg.content.split(' ')[1] !== 'piclist') {
+  if(msg.content.toLowerCase().startsWith(`${prefix} pic`) && msg.content.toLowerCase().split(' ')[1] !== 'piclist') {
     const animal = msg.content.split(' ')[2]
     if(isAnimal(animal)) {    
       new Promise(accepted => {

@@ -3,7 +3,7 @@ const { getUser, addBalance } = require('../database/userlist.js')
 const { activeGamblers, isGambling, alreadyGamblingMsg } = require('./activeGamblers.js')
 
 const higherLower = (msg) => {
-  if(msg.content.startsWith(`${prefix} highlow`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} highlow`)) {
     const user = msg.author
     const amount = parseInt(msg.content.split(' ')[2])
     const gambler = isGambling(user)
@@ -51,7 +51,7 @@ const continueHigherLower = (msg) => {
   const user = msg.author
   const gambler = isGambling(user)
   if(gambler && gambler.game === 'highlow') {
-    const action = msg.content
+    const action = msg.content.toLowerCase()
     const index = activeGamblers.indexOf(gambler)
     const newNumber = Math.floor(Math.random() * 100)
     const currentNumber = gambler.number

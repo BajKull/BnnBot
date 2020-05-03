@@ -235,7 +235,7 @@ const animals = [
 const isAnimal = (animal) => animals.find(el => el.toLowerCase() === animal)
 
 const animalList = (msg) => {
-  if(msg.content.startsWith(`${prefix} piclist`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} piclist`)) {
     msg.author.send(animals.join(', '))
     msg.react('🦆')
   }

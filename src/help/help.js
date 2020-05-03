@@ -3,7 +3,7 @@ const { getUser, getTopTenList } = require('../database/userlist.js')
 const { prefix } = require('../../config.json')
 
 const showHelp = (msg) => {
-  if(msg.content.startsWith(`${prefix} help`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} help`)) {
     const command = msg.content.split(' ')[2]
     const list = new Discord.MessageEmbed()
       .setAuthor('HELP', msg.author.displayAvatarURL())
@@ -101,7 +101,7 @@ const showHelp = (msg) => {
 }
 
 const showInfo = (msg) => {
-  if(msg.content.startsWith(`${prefix} info`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} info`)) {
     const user = msg.author
     new Promise(accepted => {
       getUser(user).then(player => {
@@ -123,7 +123,7 @@ const showInfo = (msg) => {
 }
 
 const top10Money = (msg) => {
-  if(msg.content.startsWith(`${prefix} top10`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} top10`)) {
     const user = msg.author
     getTopTenList('money').then(moneyList => {
       const list = moneyList.map(x => x.name + ': ' + x.money + '$').join('\n')

@@ -8,7 +8,7 @@ const Fetch = require('node-fetch')
 const Discord = require('discord.js')
 
 const fight = (msg) => {
-  if(msg.content.startsWith(`${prefix} fight`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} fight`)) {
     const player1 = msg.author
     const player2 = msg.mentions.users.first()
     if(isInFight(player1))
@@ -94,7 +94,7 @@ const getClassNames = () => classes.reduce((acc, name) =>  acc.concat(', ' + nam
 
 const fightAction = (msg) => {
   const user = msg.author
-  const message = msg.content
+  const message = msg.content.toLowerCase()
   if(isInFight(user)) {
     const fight = activeFights.find(fight => (fight[0].id === user.id || fight[1].id === user.id))
     const fightIndex = activeFights.indexOf(fight)
@@ -350,9 +350,7 @@ const changePlayer = (fightIndex, playerIndex, room, afk) => {
   }
 }
 
-const isDead = (player) => {
-  return player.stats.health <= 0
-}
+const isDead = (player) => player.stats.health <= 0
 
 const finishFight = (fightIndex, playerIndex, winner, room) => {
   const opPlayerIndex = (playerIndex === 0) ? 1 : 0
@@ -416,7 +414,7 @@ const setStats = (fightIndex) => {
 }
 
 const displayClassStats = (msg) => {
-  if(msg.content.startsWith(`${prefix} classinfo`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} classinfo`)) {
     const name = msg.content.split(' ')[2]
     const classStats = getClassStats(name)
     if(name === 'warrior')
@@ -480,7 +478,7 @@ const showItemsStats = (prevWeapon, prevShield, prevNecklace, weapon, shield, ne
   const hp3 = `❤️ ${prevNecklace.health} => ${necklace.health} ${(prevNecklace.health > necklace.health) ? '⚠️' : '✅'}`
   
   const msg = new Discord.MessageEmbed()
-    .setColor('[128, 0, 128]')
+    .setColor([128, 0, 128])
     .setTitle(`SWORD                     SHIELD                      NECKLACE`)
     .setDescription(`${at1} \u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003 ${at3}\n\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003${ar2} \u2003\u2003\u2003 ${ar3}\n\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003${hp2} \u2003\u2003\u2003 ${hp3}`)
     .setFooter(`Type 1 to claim sword, type 2 to claim shield, type 3 to claim necklace`)

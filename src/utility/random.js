@@ -5,7 +5,7 @@ const rollNumber = (n) => {
 }
 
 const rollDice = (msg) => {
-  if(msg.content.startsWith(`${prefix} roll`)) {
+  if(msg.content.toLowerCase().startsWith(`${prefix} roll`)) {
     const amount = parseInt(msg.content.split(' ')[2])
     const size = parseInt(msg.content.split(' ')[3])
   
