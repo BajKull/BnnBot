@@ -25,41 +25,44 @@ const showBalance = (msg) => {
 
 const collectMoney = (msg) => {
   if(msg.content.toLowerCase().startsWith(`${prefix} collect`)) {
-    const user = msg.author
-    const lastCollected = collectedCD.find(el => el.id === user.id)
-    const amount = Math.floor(Math.random() * 15)
-    if(lastCollected) {
-      const date = new Date()
-      const diff = Math.floor((lastCollected.time - date) / 1000 * -1)
-      if(diff >= 3600) {
-        const index = collectedCD.indexOf(lastCollected)
-        collectedCD[index].time = new Date()
-        addBalance(user, amount).then(balance => {
-          msg.channel.send(`You collected ${amount} cans. Your new balance is ${balance}$`)
-        }).catch(rejected => {
-          msg.channel.send(rejected)
-        })
+    const u = msg.author
+    getUser(u).then(user => {
+      const lastCollected = collectedCD.find(el => el.id === user.id)
+      let amount = 0
+      for(let i = 0; i < user.level; i ++) {
+        amount += (Math.floor(Math.random() * 15) + 1)
+      }
+      if(lastCollected) {
+        const date = new Date()
+        const diff = Math.floor((lastCollected.time - date) / 1000 * -1)
+        if(diff >= 3600) {
+          const index = collectedCD.indexOf(lastCollected)
+          collectedCD[index].time = new Date()
+          addBalance(user, amount).then(balance => {
+            msg.channel.send(`You collected ${amount} cans. Your new balance is ${balance}$`)
+          }).catch(rejected => {
+            msg.channel.send(rejected)
+          })
+        }
+        else {
+          let minutes = 59 - Math.floor(diff / 60)
+          let plural = ''
+          if(minutes > 0) 
+            plural = minutes > 1 ? ' minutes ' : ' minute '
+          else
+            minutes = ''
+          const minutesDisplay = minutes + plural
+          plural = ''
+          let seconds = (3600 - (minutes * 60)) - diff
+          if(seconds > 0) 
+            plural = seconds > 1 ? ' seconds ' : ' second '
+          else
+            seconds = ''
+          const secondsDisplay = seconds + plural
+          msg.channel.send(`There are no cans left! **Wait** ${minutesDisplay}${secondsDisplay}more, so the cans respawn, you metal scrapper!`)
+        }
       }
       else {
-        let minutes = 59 - Math.floor(diff / 60)
-        let plural = ''
-        if(minutes > 0) 
-          plural = minutes > 1 ? ' minutes ' : ' minute '
-        else
-          minutes = ''
-        const minutesDisplay = minutes + plural
-        plural = ''
-        let seconds = (3600 - (minutes * 60)) - diff
-        if(seconds > 0) 
-          plural = seconds > 1 ? ' seconds ' : ' second '
-        else
-          seconds = ''
-        const secondsDisplay = seconds + plural
-        msg.channel.send(`There are no cans left! **Wait** ${minutesDisplay}${secondsDisplay}more, so the cans respawn, you metal scrapper!`)
-      }
-    }
-    else {
-      getUser(user).then(accepted => {
         const collector = {
           id: user.id,
           time: new Date(),
@@ -70,10 +73,11 @@ const collectMoney = (msg) => {
         }).catch(rejected => {
           msg.channel.send(rejected)
         })
-      }).catch(rejected => {
-        msg.channel.send(rejected)
-      })
-    }    
+      }  
+    }).catch(rejected => {
+      msg.channel.send(rejected)
+    })
+      
   }
 }
 

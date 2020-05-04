@@ -10,7 +10,7 @@ const showHelp = (msg) => {
       .setColor([128, 0, 128])
       .setTitle(command)
       
-    const commandList = ['balance', 'class', 'classinfo', 'collect', 'donate', 'fight', 'flip', 'highlow', 'heist', 'help', 'info', 'jackpot', 'pic', 'piclist', 'porn', 'poll', 'roll', 'top10', 'vote']
+    const commandList = ['balance', 'class', 'classinfo', 'collect', 'donate', 'fight', 'flip', 'highlow', 'heist', 'help', 'info', 'jackpot', 'level', 'pic', 'piclist', 'porn', 'poll', 'roll', 'top10', 'vote', 'xp']
     if(command === 'balance') 
       list.setDescription('Displays balance of your account if you\'re a member of the fighting club. To join the fighting club type bnn class. Available classes and their stats under bnn classinfo.')
     else if(command === 'class') {
@@ -61,6 +61,9 @@ const showHelp = (msg) => {
       list.setDescription('Allows you to play jackpot with your friends! First person that types *bnn jackpot amount*, creates a jackpot which everyone can join. The more money you join with, the higher your chances of winning are. One person gathers all the money everyone entered with, everyone else looses! For example: if person X joins with 70$, person Y joins with 20$, person Z joins with 10$, their chances of winning are respectively: 70%, 20%, 10%.')
       list.setFooter('Example use: bnn jackpot 20')
     }
+
+    else if(command === 'level')
+      list.setDescription('Shows you your current level progress. The higher level you have the more cans you can collect, and earn more money. To earn money type *bnn collect*.')
   
     else if(command === 'pic') {
       list.setDescription('Sends you a picture of an animal. To see list of available animals type bnn piclist')
@@ -89,6 +92,11 @@ const showHelp = (msg) => {
     else if(command === 'vote') {
       list.setDescription('Allows you to vote in a poll. You can vote either by typing *option number* or *option message*. You can\'t vote twice in a single poll so choose wisely!')
       list.setFooter('Let\'s say someone created poll such as bnn poll do you like ducks ? absolutely yes no \nYou can vote either by typing: *bnn vote 1* or *bnn vote absolutely*')
+    }
+
+    else if(command === 'xp') {
+      list.setDescription('Allows you to buy xp for money. 1$ = 1xp. To level up you need to gain certain amount of xp. To see that amount type *bnn level*. To see what leveling up does type *bnn help level*')
+      list.setFooter('Example use: bnn xp 200')
     }
   
     else {

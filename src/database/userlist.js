@@ -89,6 +89,44 @@ const addBalance = (user, amount) => {
   })
 }
 
+const addExperience = (user, amount) => {
+  return new Promise((accepted, rejected) => {
+    const update = `UPDATE users SET money = money - ${amount}, xp = xp + ${amount} WHERE id = \'${user.id}\';`
+    const select = `SELECT level, xp FROM users WHERE id = \'${user.id}\';`
+    pool.query(update + select, (error, results) => {
+      if(error) {
+        console.log(error)
+        rejected('Couldn\'t connect to the database, try again later')
+      }
+      else {
+        if(results[1][0])
+          accepted(results[1][0])
+        else
+          rejected(`${user} you idiot, how do you want to earn experience if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are *warrior*, *mage*, *druid*, *rogue*.`)
+      } 
+    })
+  })
+}
+
+const levelUp = (user, newXp) => {
+  return new Promise((accepted, rejected) => {
+    const update = `UPDATE users SET level = level + 1, xp = ${newXp} WHERE id = \'${user.id}\';`
+    const select = `SELECT level, xp FROM users WHERE id = \'${user.id}\';`
+    pool.query(update + select, (error, results) => {
+      if(error) {
+        console.log(error)
+        rejected('Couldn\'t connect to the database, try again later')
+      }
+      else {
+        if(results[1][0])
+          accepted(results[1][0])
+        else
+          rejected(`${user} you idiot, how do you want to earn experience if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are *warrior*, *mage*, *druid*, *rogue*.`)
+      } 
+    })
+  })
+}
+
 const getTopTenList = (order) => {
   return new Promise((accepted, rejected) => {
     pool.query(`SELECT * FROM users ORDER BY ${order} DESC LIMIT 10`, (error, results) => {
@@ -102,4 +140,4 @@ const getTopTenList = (order) => {
   })
 }
 
-module.exports = { updateUser, getUser, afterFightUpdate, addBalance, getTopTenList }
+module.exports = { updateUser, getUser, afterFightUpdate, addBalance, getTopTenList, addExperience, levelUp }

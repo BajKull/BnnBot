@@ -6,11 +6,13 @@ const { animalList } = require('./src/utility/animals.js')
 const { rollDice } = require('./src/utility/random.js')
 const { vote, poll } = require('./src/poll/vote.js')
 const { showBalance, collectMoney, donate } = require('./src/gambling/money.js')
-const { coinFlip } = require('./src/gambling/coinFlip')
-const { jackpot } = require('./src/gambling/jackpot')
-const { heist } = require('./src/gambling/heist')
-const { higherLower, continueHigherLower } = require('./src/gambling/higherLower')
+const { coinFlip } = require('./src/gambling/coinFlip.js')
+const { jackpot } = require('./src/gambling/jackpot.js')
+const { heist } = require('./src/gambling/heist.js')
+const { higherLower, continueHigherLower } = require('./src/gambling/higherLower.js')
 const { getRedditImage } = require('./src/utility/reddit.js')
+const { buyXp } = require('./src/level/buyXp.js')
+const { levelProgress } = require('./src/level/levelProgress.js')
 
 const functions = [
   fight,
@@ -34,6 +36,8 @@ const functions = [
   higherLower,
   continueHigherLower,
   getRedditImage,
+  buyXp,
+  levelProgress,
 ]
 
 module.exports = { functions }
