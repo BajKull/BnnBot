@@ -89,9 +89,13 @@ const addBalance = (user, amount) => {
   })
 }
 
-const addExperience = (user, amount) => {
+const addExperience = (user, amount, bought) => {
   return new Promise((accepted, rejected) => {
-    const update = `UPDATE users SET money = money - ${amount}, xp = xp + ${amount} WHERE id = \'${user.id}\';`
+    let update = ''
+    if(bought)
+      update = `UPDATE users SET money = money - ${amount}, xp = xp + ${amount} WHERE id = \'${user.id}\';`
+    else
+      update = `UPDATE users SET xp = xp + ${amount} WHERE id = \'${user.id}\';`
     const select = `SELECT level, xp FROM users WHERE id = \'${user.id}\';`
     pool.query(update + select, (error, results) => {
       if(error) {

@@ -1,4 +1,4 @@
-const { fight, fightAction, displayClassStats } = require('./src/fight/fighting.js')
+const { fight, fightAction } = require('./src/fight/fighting.js')
 const { showHelp, showInfo, top10Money } = require('./src/help/help.js')
 const { updateUser } = require('./src/database/userlist.js')
 const { getImage } = require('./src/utility/images.js')
@@ -13,6 +13,7 @@ const { higherLower, continueHigherLower } = require('./src/gambling/higherLower
 const { getRedditImage } = require('./src/utility/reddit.js')
 const { buyXp } = require('./src/level/buyXp.js')
 const { levelProgress } = require('./src/level/levelProgress.js')
+const { displayClassStats } = require('./src/fight/displayClassStats.js')
 
 const functions = [
   fight,

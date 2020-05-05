@@ -1,11 +1,18 @@
-const activeFights = []
+const { activeFights } = require('./activeFights.js')
 const classes = ['warrior', 'mage', 'druid', 'rogue']
 
-const { getUser, afterFightUpdate } = require('../database/userlist.js')
+const { getUser } = require('../database/userlist.js')
 const { prefix } = require('../../config.json')
+const { createReward } = require('./showItemStats.js')
+const { showFightingStats } = require('./showFightingStats.js')
+const { finishFight } = require('./finishFight.js')
+const { setStats } = require('./setStats.js')
 
 const Fetch = require('node-fetch')
-const Discord = require('discord.js')
+
+const isInFight = (player) => activeFights.find(fight => (fight[0].id === player.id || fight[1].id === player.id))
+const getClassNames = () => classes.reduce((acc, name) =>  acc.concat(', ' + name))
+const isDead = (player) => player.stats.health <= 0
 
 const fight = (msg) => {
   if(msg.content.toLowerCase().startsWith(`${prefix} fight`)) {
@@ -29,6 +36,7 @@ const fight = (msg) => {
               id: fighter1.id,
               name: fighter1.name,
               class: fighter1.class,
+              level: fighter1.level,
               phase: 'difficulty',
               difficulty: '',
               correctAnswer: '',
@@ -61,6 +69,7 @@ const fight = (msg) => {
             user2.name = fighter2.name
             user2.class = fighter2.class
             user2.phase = 'opponent'
+            user2.level = fighter2.level
   
             const info = {
               reward: {
@@ -87,10 +96,6 @@ const fight = (msg) => {
     }
   }
 }
-
-const isInFight = (player) => activeFights.find(fight => (fight[0].id === player.id || fight[1].id === player.id))
-
-const getClassNames = () => classes.reduce((acc, name) =>  acc.concat(', ' + name))
 
 const fightAction = (msg) => {
   const user = msg.author
@@ -193,11 +198,12 @@ const fightAction = (msg) => {
   
     else if(activeFights[fightIndex][playerIndex].phase === 'fight') {
       let fightOn = true
+      let feedback = ''
       if(message === 'attack' || message === 'defend' || message === 'rest') {
         if(message === 'attack') {
           const opponent = msg.channel.client.users.resolve(activeFights[fightIndex][opIndex].id)
           if(activeFights[fightIndex][opIndex].class === 'rogue' && Math.floor(Math.random() * 100) < activeFights[fightIndex][playerIndex].stats.special + Math.floor(Math.random() * 20)) {
-            msg.channel.send(`${user} swings his sword but he's too slow for ${opponent} which **dodges** the attack`)
+            feedback += `${user} swings his sword but he's too slow for ${opponent} which **dodges** the attack`
             fightOn = false
             changePlayer(fightIndex, playerIndex, msg.channel, false)
           }
@@ -212,7 +218,7 @@ const fightAction = (msg) => {
             if(health < 0)
               health = 0
     
-            msg.channel.send(`${user} swings his sword at ${opponent} dealing **${damage} damage**! He's left with **${health} health**.`)
+            feedback += `${user} swings his sword at ${opponent} dealing **${damage} damage**! He's left with **${health} health**.`
             if(isDead(activeFights[fightIndex][opIndex])) {
               finishFight(fightIndex, playerIndex, user, msg.channel)
               fightOn = false
@@ -221,7 +227,7 @@ const fightAction = (msg) => {
         }
         else if(message === 'defend') {
           if(activeFights[fightIndex][playerIndex].defends > 1) {
-            msg.channel.send(`${user}, stop being a coward... take your sword and start attacking! Defend limit reached. You **loose** your **turn**.`)
+            feedback += `${user}, stop being a coward... take your sword and start attacking! Defend limit reached. You **loose** your **turn**.`
             fightOn = false
             changePlayer(fightIndex, playerIndex, msg.channel, false)
           }
@@ -230,14 +236,14 @@ const fightAction = (msg) => {
             const armorUp = Math.floor(Math.random() * 35)
             activeFights[fightIndex][playerIndex].stats.armor += armorUp
             const armor = activeFights[fightIndex][playerIndex].stats.armor
-            msg.channel.send(`${user} takes a defensive approach, raising his shield. His **armor increases** by **${armorUp}** which gives him a total of **${armor} armor**`)
+            feedback += `${user} takes a defensive approach, raising his shield. His **armor increases** by **${armorUp}** which gives him a total of **${armor} armor**`
           }
         }
         else {
           const healthUp = Math.floor(Math.random() * 50)
           activeFights[fightIndex][playerIndex].stats.health += healthUp
           const health = activeFights[fightIndex][playerIndex].stats.health
-          msg.channel.send(`${user} takes a deep breath and refocuses. His **health increases** by **${healthUp}** which gives him a total of **${health} health**`)
+          feedback += `${user} takes a deep breath and refocuses. His **health increases** by **${healthUp}** which gives him a total of **${health} health**`
           if(health > 500) {
             finishFight(fightIndex, playerIndex, user, msg.channel)
             fightOn = false
@@ -253,7 +259,7 @@ const fightAction = (msg) => {
                 activeFights[fightIndex][opIndex].stats.armor = 0
                 armorAmount = 0
               }
-              msg.channel.send(`In addition ${user}, scratches opponents **armor** and **reduces** it by **${armor}**, which leaves his opponent at **${armorAmount} armor**!`)
+              feedback += `\nIn addition ${user}, scratches opponents **armor** and **reduces** it by **${armor}**, which leaves his opponent at **${armorAmount} armor**!`
             }
             else if(activeFights[fightIndex][playerIndex].class === 'mage') {
               const damage = 30 + Math.floor(Math.random() * 40)
@@ -263,7 +269,7 @@ const fightAction = (msg) => {
                 activeFights[fightIndex][opIndex].stats.health = 0
                 healthAmount = 0
               }
-              msg.channel.send(`In addition ${user}, cast a fireball **dealing ${damage}** piercing **damage**, which leaves his opponent at **${healthAmount} health**!`)
+              feedback += `\nIn addition ${user}, cast a fireball **dealing ${damage}** piercing **damage**, which leaves his opponent at **${healthAmount} health**!`
               if(isDead(activeFights[fightIndex][opIndex])) {
                 finishFight(fightIndex, playerIndex, user, msg.channel)
                 fightOn = false
@@ -273,13 +279,14 @@ const fightAction = (msg) => {
               const heal = 25 + Math.floor(Math.random() * 40)
               activeFights[fightIndex][playerIndex].stats.health += heal
               const health = activeFights[fightIndex][playerIndex].stats.health
-              msg.channel.send(`In addition ${user}, summoned a duck which **healed** him for **${heal}**, which gives him **${health} health** in total!`)
+              feedback += `\nIn addition ${user}, summoned a duck which **healed** him for **${heal}**, which gives him **${health} health** in total!`
               if(health > 500) {
                 finishFight(fightIndex, playerIndex, user, msg.channel)
                 fightOn = false
               }
             }
           }
+          msg.channel.send(feedback)
           if(fightOn)
             changePlayer(fightIndex, playerIndex, msg.channel, false)
         }
@@ -350,27 +357,6 @@ const changePlayer = (fightIndex, playerIndex, room, afk) => {
   }
 }
 
-const isDead = (player) => player.stats.health <= 0
-
-const finishFight = (fightIndex, playerIndex, winner, room) => {
-  const opPlayerIndex = (playerIndex === 0) ? 1 : 0
-  const fighter1 = activeFights[fightIndex][playerIndex]
-  const fighter2 = activeFights[fightIndex][opPlayerIndex]
-
-  clearTimeout(activeFights[fightIndex][2].timer)
-  clearTimeout(activeFights[fightIndex][2].battleTimer)
-  activeFights.splice(fightIndex, 1)
-
-  const prize = Math.floor(Math.random() * 30)
-
-  afterFightUpdate(fighter1.id, fighter2.id, prize).then((winstreak) => {
-    room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a **${winstreak} winstreak** and **earned ${prize}$**.`)
-  }).catch((error) => {
-    room.send(error)
-  })
-  
-}
-
 const abortFight = (fightIndex, room, errorCode) => {
   clearTimeout(activeFights[fightIndex][2].timer)
   clearTimeout(activeFights[fightIndex][2].battleTimer)
@@ -383,141 +369,5 @@ const abortFight = (fightIndex, room, errorCode) => {
     room.send(`Okay, I'm done with you. Fight over due to your fighting speed. Next time act faster.`)
 }
 
-const getClassStats = (str) => {
-  if(str === 'warrior')
-    return {health: 190, attack: 20, armor: 20, special: 20}
-  else if(str === 'rogue')
-    return {health: 140, attack: 25, armor: 15, special: 15}
-  else if(str === 'druid')
-    return {health: 215, attack: 15, armor: 25, special: 20}
-  else if(str === 'mage')
-    return {health: 170, attack: 20, armor: 10, special: 25}
-  else
-    return null
-}
-
-const setStats = (fightIndex) => {
-  const p1 = activeFights[fightIndex][0]
-  const stats1 = getClassStats(p1.class)
-  stats1.attack = stats1.attack + p1.weapon.attack + p1.necklace.attack
-  stats1.armor = stats1.armor + p1.shield.armor + p1.necklace.armor
-  stats1.health = stats1.health + p1.shield.health + p1.necklace.health
-  activeFights[fightIndex][0].stats = stats1
-
-  
-  const p2 = activeFights[fightIndex][1]
-  const stats2 = getClassStats(p2.class)
-  stats2.attack = stats2.attack + p2.weapon.attack + p2.necklace.attack
-  stats2.armor = stats2.armor + p2.shield.armor + p2.necklace.armor
-  stats2.health = stats2.health + p2.shield.health + p2.necklace.health
-  activeFights[fightIndex][1].stats = stats2
-}
-
-const displayClassStats = (msg) => {
-  if(msg.content.toLowerCase().startsWith(`${prefix} classinfo`)) {
-    const name = msg.content.split(' ')[2]
-    const classStats = getClassStats(name)
-    if(name === 'warrior')
-      msg.channel.send(`Warrior, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to break 10-30 opponent's armor.`)
-    else if(name === 'rogue')
-      msg.channel.send(`Rogue, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to dodge opponent's attack.`)
-    else if(name === 'mage')
-      msg.channel.send(`Mage, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to cast a fireball, dealing 30-70 opponent's piercing damage.`)
-    else if(name === 'druid')
-      msg.channel.send(`Druid, attack: ${classStats.attack}-${classStats.attack + 50}, armor: ${classStats.armor}, health: ${classStats.armor}, special: ${classStats.special}-${classStats.special + 20}% to heal for 25-65.`)
-    else if(name === 'all') {
-      const warrior = getClassStats('warrior')
-      const mage = getClassStats('mage')
-      const druid = getClassStats('druid')
-      const rogue = getClassStats('rogue')
-      msg.channel.send(`\`\`\`
-              warrior      mage      druid      rogue
-  attack        ${warrior.attack}          ${mage.attack}        ${druid.attack}         ${rogue.attack}
-  armor         ${warrior.armor}          ${mage.armor}        ${druid.armor}         ${rogue.armor}
-  health        ${warrior.health}          ${mage.health}        ${druid.health}         ${rogue.health}
-  
-  special      ${warrior.special}-${warrior.special+20}%      ${mage.special}-${mage.special + 20}%    ${druid.special}-${druid.special + 20}%     ${rogue.special}-${rogue.special + 20}%
-               reduce      deal      heal       dodge
-               armor       dmg       up         attack
-  \`\`\``)
-    }
-    else
-      msg.channel.send(`Invalid classname. Type bnn classinfo class. Available classes: *${getClassNames()}* or **all**`)
-  }
-}
-
-const showFightingStats = (fightIndex, room) => {
-
-  const nick1 = activeFights[fightIndex][0].name
-  const nick2 = activeFights[fightIndex][1].name
-  const at1 = `⚔️ ${activeFights[fightIndex][0].stats.attack}-${activeFights[fightIndex][0].stats.attack + 50}`
-  const ar1 = `🛡️ ${activeFights[fightIndex][0].stats.armor}`
-  const hp1 = `❤️ ${activeFights[fightIndex][0].stats.health}`
-  const at2 = `⚔️ ${activeFights[fightIndex][1].stats.attack}-${activeFights[fightIndex][1].stats.attack + 50}`
-  const ar2 = `🛡️ ${activeFights[fightIndex][1].stats.armor}`
-  const hp2 = `❤️ ${activeFights[fightIndex][1].stats.health}`
-
-  //u2003 = unicode for 1em width space
-  const msg = new Discord.MessageEmbed()
-    .setTitle(`${nick1}   |   ${nick2}`)
-    .setDescription(`${at1} \u2003 \u2003 ${at2}\n${ar1} \u2006\u2003 \u2003 \u2003 ${ar2}\n${hp1} \u2006\u2003 \u2003 \u2003 ${hp2}`)
-    .setColor([128, 0, 128])
-
-  room.send(msg)
-}
-
-const showItemsStats = (prevWeapon, prevShield, prevNecklace, weapon, shield, necklace, room) => {
-
-  const at1 = `⚔️ ${prevWeapon.attack} => ${weapon.attack} ${(prevWeapon.attack > weapon.attack) ? '⚠️' : '✅'}`
-  const at3 = `⚔️ ${prevNecklace.attack} => ${necklace.attack} ${(prevNecklace.attack > necklace.attack) ? '⚠️' : '✅'}`
-
-  const ar2 = `🛡️ ${prevShield.armor} => ${shield.armor} ${(prevShield.armor > shield.armor) ? '⚠️' : '✅'}`
-  const ar3 = `🛡️ ${prevNecklace.armor} => ${necklace.armor} ${(prevNecklace.armor > necklace.armor) ? '⚠️' : '✅'}`
-
-  const hp2 = `❤️ ${prevShield.health} => ${shield.health} ${(prevShield.health > shield.health) ? '⚠️' : '✅'}`
-  const hp3 = `❤️ ${prevNecklace.health} => ${necklace.health} ${(prevNecklace.health > necklace.health) ? '⚠️' : '✅'}`
-  
-  const msg = new Discord.MessageEmbed()
-    .setColor([128, 0, 128])
-    .setTitle(`SWORD                     SHIELD                      NECKLACE`)
-    .setDescription(`${at1} \u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003 ${at3}\n\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003${ar2} \u2003\u2003\u2003 ${ar3}\n\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003${hp2} \u2003\u2003\u2003 ${hp3}`)
-    .setFooter(`Type 1 to claim sword, type 2 to claim shield, type 3 to claim necklace`)
-
-  room.send(msg)
-}
-
-const createReward = (user, room, fightIndex) => {
-  let rewardGrade
-  if(user.difficulty === 'easy') rewardGrade = 5 
-  if(user.difficulty === 'medium') rewardGrade = 10
-  if(user.difficulty === 'hard') rewardGrade = 15 
-
-
-  const weapon = {
-    name: "BF Sword",
-    attack: rewardGrade * Math.floor(Math.random() * 6) + Math.floor(Math.random() * rewardGrade),
-  }
-  if(weapon.attack > 99)
-    weapon.attack = 99
-  const shield = {
-    name: "Three ton tunic",
-    armor: rewardGrade * Math.floor(Math.random() * 4) + Math.floor(Math.random() * rewardGrade),
-    health: rewardGrade * Math.floor(Math.random() * 8) + Math.floor(Math.random() * rewardGrade),
-  }
-  if(shield.health > 99)
-    shield.health = 99
-  const necklace = {
-    name: "Jade amulet",
-    attack: rewardGrade * Math.floor(Math.random() * 2) + Math.floor(Math.random() * rewardGrade),
-    armor: rewardGrade * Math.floor(Math.random() * 3) + Math.floor(Math.random() * rewardGrade),
-    health: rewardGrade * Math.floor(Math.random() * 5) + Math.floor(Math.random() * rewardGrade),
-  }
-  activeFights[fightIndex][2].reward.weapon = weapon
-  activeFights[fightIndex][2].reward.shield = shield
-  activeFights[fightIndex][2].reward.necklace = necklace
-
-  showItemsStats(user.weapon, user.shield, user.necklace, weapon, shield, necklace, room)
-}
-
-module.exports = { fight, isInFight, getClassNames, fightAction, displayClassStats }
+module.exports = { fight, isInFight, getClassNames, fightAction }
 

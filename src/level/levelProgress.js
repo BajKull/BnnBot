@@ -12,6 +12,7 @@ const levelProgress = (msg) => {
       .setColor([128, 0, 128])
       .setTitle('Level progress')
       .setDescription(`level: ${user.level}\nxp: ${user.xp}/${xpGoalPerLv[user.level - 1]}`)
+      .setFooter(`To buy xp, type *bnn xp*`)
       msg.channel.send(display)
     }).catch(rejected => {
       console.log(rejected)

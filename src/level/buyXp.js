@@ -16,7 +16,7 @@ const buyXp = (msg) => {
         if(amount > user.money)
           msg.channel.send(`${u}, you don't have that much money! Your current **balance** is **${user.money}$**`)
         else {
-          addExperience(user, amount).then(userNewXp => {
+          addExperience(user, amount, true).then(userNewXp => {
             const check = checkIfLvUp(userNewXp.level, userNewXp.xp)
             if(check)
               levelUp(user, check).then(accepted => {
