@@ -17,7 +17,7 @@ const updateUser = (msg) => {
     const userClass = msg.content.split(' ')[2]
     if(userClass === 'warrior' || userClass === 'rogue' || userClass === 'druid' || userClass === 'mage'){
       new Promise((accepted, rejected) => {
-        pool.query(`INSERT INTO users VALUES(\'${user.id}\', \'${user.username}\', \'${userClass}\', 0, 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE class = \'${userClass}\'`, (error) => {
+        pool.query(`INSERT INTO users VALUES(\'${user.id}\', \'${user.username}\', \'${userClass}\', 1, 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE class = \'${userClass}\'`, (error) => {
           if(error) {
             console.log(error)
             rejected('Couldn\'t connect to the database, try again later')
