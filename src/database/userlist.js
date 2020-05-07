@@ -1,5 +1,6 @@
 const mysql = require('mysql')
 const { prefix, dblogin, dbpassword } = require('../../config.json')
+const { getClassNames } = require('../fight/getClassNames.js')
 
 let pool = mysql.createPool({
   connectionLimit: 10,
@@ -31,7 +32,7 @@ const updateUser = (msg) => {
       })
     }
     else
-      msg.channel.send(`${user}, you idiot... Available classes are *warrior*, *mage*, *druid*, *rogue*, no other options! Type *bnn class classname*. If you want to find out what classes do type *bnn classinfo*`)
+      msg.channel.send(`${user}, you idiot... Available classes are ${getClassNames()}, no other options! Type *bnn class classname*. If you want to find out what classes do type *bnn classinfo*`)
   }
 }
 
@@ -83,7 +84,7 @@ const addBalance = (user, amount) => {
         if(results[1][0])
           accepted(results[1][0].money)
         else
-          rejected(`${user} you idiot, how do you want to earn money if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are *warrior*, *mage*, *druid*, *rogue*.`)
+          rejected(`${user} you idiot, how do you want to earn money if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are ${ getClassNames() }.`)
       } 
     })
   })
@@ -106,7 +107,7 @@ const addExperience = (user, amount, bought) => {
         if(results[1][0])
           accepted(results[1][0])
         else
-          rejected(`${user} you idiot, how do you want to earn experience if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are *warrior*, *mage*, *druid*, *rogue*.`)
+          rejected(`${user} you idiot, how do you want to earn experience if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are ${ getClassNames() }.`)
       } 
     })
   })
@@ -125,7 +126,7 @@ const levelUp = (user, newXp) => {
         if(results[1][0])
           accepted(results[1][0])
         else
-          rejected(`${user} you idiot, how do you want to earn experience if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are *warrior*, *mage*, *druid*, *rogue*.`)
+          rejected(`${user} you idiot, how do you want to earn experience if you're not a member of the fighting club?! To join the club type *bnn class ...*. Available classess are ${ getClassNames() }.`)
       } 
     })
   })

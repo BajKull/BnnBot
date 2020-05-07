@@ -1,5 +1,4 @@
 const { activeFights } = require('./activeFights.js')
-const classes = ['warrior', 'mage', 'druid', 'rogue']
 
 const { getUser } = require('../database/userlist.js')
 const { prefix } = require('../../config.json')
@@ -7,11 +6,12 @@ const { createReward } = require('./showItemStats.js')
 const { showFightingStats } = require('./showFightingStats.js')
 const { finishFight } = require('./finishFight.js')
 const { setStats } = require('./setStats.js')
+const { getClassNames } = require('./getClassNames')
 
 const Fetch = require('node-fetch')
 
 const isInFight = (player) => activeFights.find(fight => (fight[0].id === player.id || fight[1].id === player.id))
-const getClassNames = () => classes.reduce((acc, name) =>  acc.concat(', ' + name))
+
 const isDead = (player) => player.stats.health <= 0
 
 const fight = (msg) => {
@@ -369,5 +369,5 @@ const abortFight = (fightIndex, room, errorCode) => {
     room.send(`Okay, I'm done with you. Fight over due to your fighting speed. Next time act faster.`)
 }
 
-module.exports = { fight, isInFight, getClassNames, fightAction }
+module.exports = { fight, isInFight, fightAction }
 

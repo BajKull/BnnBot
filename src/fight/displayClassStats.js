@@ -1,4 +1,5 @@
 const { prefix } = require('../../config.json')
+const { getClassNames } = require('./getClassNames.js')
 
 const getClassStats = (str) => {
   if(str === 'warrior')
