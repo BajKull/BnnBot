@@ -1,7 +1,7 @@
 const { activeFights } = require('./activeFights.js')
 const { afterFightUpdate, addExperience } = require('../database/userlist.js')
 
-const finishFight = (fightIndex, playerIndex, winner, room) => {
+const finishFight = (fightIndex, playerIndex, winner, room, text = '') => {
   const opPlayerIndex = (playerIndex === 0) ? 1 : 0
   const fighter1 = activeFights[fightIndex][playerIndex]
   const fighter2 = activeFights[fightIndex][opPlayerIndex]
@@ -14,7 +14,7 @@ const finishFight = (fightIndex, playerIndex, winner, room) => {
   const xp = Math.floor(Math.random() * 50) * fighter1.level
 
   afterFightUpdate(fighter1.id, fighter2.id, prize).then((winstreak) => {
-    room.send(`Fight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a **${winstreak} winstreak**, **earned ${prize}$** and **gained ${xp} xp**!`)
+    room.send(`${text}\nFight finished! ${winner} won with ${fighter1.stats.health} health left! He is on a **${winstreak} winstreak**, **earned ${prize}$** and **gained ${xp} xp**!`)
   }).catch((error) => {
     room.send(error)
   })

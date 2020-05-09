@@ -17,22 +17,18 @@ const higherLower = (msg) => {
           rejected('You have to play with at least 4$')
         else {
           getUser(user).then(gambler => {
-            if(!gambler)
-              rejected(`${user} you idiot, how do you want to gamble without an account? Join the fighting club and we''l give you one for free! To join the club type *bnn class ...*. Available classess are *${getClassNames()}*.`)
+            if(gambler.money < amount)
+              rejected(`${user}, you idiot... you can\'t take loans! You only have ${gambler.money}$, go and earn some or lower your stakes!`)
             else {
-              if(gambler.money < amount)
-                rejected(`${user}, you idiot... you can\'t take loans! You only have ${gambler.money}$, go and earn some or lower your stakes!`)
-              else {
-                const player = {
-                  id: user.id,
-                  game: 'highlow',
-                  startingAmount: amount,
-                  currentStake: 0,
-                  number: Math.floor(Math.random() * 100)
-                }
-                activeGamblers.push(player)
-                accepted(`Okay ${user}, let\'s give you a number. Hmm... It\'ll be **${player.number}** this time. Will the next number be **higher** or **lower**, what do you think? Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${player.currentStake}$**`)
+              const player = {
+                id: user.id,
+                game: 'highlow',
+                startingAmount: amount,
+                currentStake: 0,
+                number: Math.floor(Math.random() * 100)
               }
+              activeGamblers.push(player)
+              accepted(`Okay ${user}, let\'s give you a number. Hmm... It\'ll be **${player.number}** this time. Will the next number be **higher** or **lower**, what do you think? Type **higher**, **lower** to continue the game or **finish** to take your money. Current stake: **${player.currentStake}$**`)
             }
           }).catch(error => {
             rejected(error)

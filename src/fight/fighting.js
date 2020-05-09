@@ -205,7 +205,7 @@ const fightAction = (msg) => {
           if(activeFights[fightIndex][opIndex].class === 'rogue' && Math.floor(Math.random() * 100) < activeFights[fightIndex][playerIndex].stats.special + Math.floor(Math.random() * 20)) {
             feedback += `${user} swings his sword but he's too slow for ${opponent} which **dodges** the attack`
             fightOn = false
-            changePlayer(fightIndex, playerIndex, msg.channel, false)
+            changePlayer(fightIndex, playerIndex, msg.channel, false, feedback)
           }
           else {
             const attack = activeFights[fightIndex][playerIndex].stats.attack
@@ -220,7 +220,7 @@ const fightAction = (msg) => {
     
             feedback += `${user} swings his sword at ${opponent} dealing **${damage} damage**! He's left with **${health} health**.`
             if(isDead(activeFights[fightIndex][opIndex])) {
-              finishFight(fightIndex, playerIndex, user, msg.channel)
+              finishFight(fightIndex, playerIndex, user, msg.channel, feedback)
               fightOn = false
             }
           } 
@@ -229,7 +229,7 @@ const fightAction = (msg) => {
           if(activeFights[fightIndex][playerIndex].defends > 1) {
             feedback += `${user}, stop being a coward... take your sword and start attacking! Defend limit reached. You **loose** your **turn**.`
             fightOn = false
-            changePlayer(fightIndex, playerIndex, msg.channel, false)
+            changePlayer(fightIndex, playerIndex, msg.channel, false, feedback)
           }
           else {
             activeFights[fightIndex][playerIndex].defends ++
@@ -245,7 +245,7 @@ const fightAction = (msg) => {
           const health = activeFights[fightIndex][playerIndex].stats.health
           feedback += `${user} takes a deep breath and refocuses. His **health increases** by **${healthUp}** which gives him a total of **${health} health**`
           if(health > 500) {
-            finishFight(fightIndex, playerIndex, user, msg.channel)
+            finishFight(fightIndex, playerIndex, user, msg.channel, feedback)
             fightOn = false
           }
         }
@@ -271,7 +271,7 @@ const fightAction = (msg) => {
               }
               feedback += `\nIn addition ${user}, cast a fireball **dealing ${damage}** piercing **damage**, which leaves his opponent at **${healthAmount} health**!`
               if(isDead(activeFights[fightIndex][opIndex])) {
-                finishFight(fightIndex, playerIndex, user, msg.channel)
+                finishFight(fightIndex, playerIndex, user, msg.channel, feedback)
                 fightOn = false
               }
             }
@@ -281,14 +281,13 @@ const fightAction = (msg) => {
               const health = activeFights[fightIndex][playerIndex].stats.health
               feedback += `\nIn addition ${user}, summoned a duck which **healed** him for **${heal}**, which gives him **${health} health** in total!`
               if(health > 500) {
-                finishFight(fightIndex, playerIndex, user, msg.channel)
+                finishFight(fightIndex, playerIndex, user, msg.channel, feedback)
                 fightOn = false
               }
             }
           }
-          msg.channel.send(feedback)
           if(fightOn)
-            changePlayer(fightIndex, playerIndex, msg.channel, false)
+            changePlayer(fightIndex, playerIndex, msg.channel, false, feedback)
         }
   
       }
@@ -301,7 +300,7 @@ const fightAction = (msg) => {
   }
 }
 
-const changePlayer = (fightIndex, playerIndex, room, afk) => {
+const changePlayer = (fightIndex, playerIndex, room, afk, text = '') => {
   if(afk){
     activeFights[fightIndex][2].afkActions ++
     room.send(`Too slow! Skipping turn.`)
@@ -318,8 +317,8 @@ const changePlayer = (fightIndex, playerIndex, room, afk) => {
     if(round > 3) {
       activeFights[fightIndex][opIndex].phase = 'fight'
       activeFights[fightIndex][playerIndex].phase = 'opponent'
-      room.send(`${nextPlayer}, it's your turn to act! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds!`)
-      showFightingStats(fightIndex, room)
+      const displayText = `${text}\n${nextPlayer}, it's your turn to act! Type **attack** to attack, **defend** to raise your shield or **rest** to gain some hp, be quick you have only 30 seconds!`
+      showFightingStats(fightIndex, room, displayText)
       clearTimeout(activeFights[fightIndex][2].timer)
       activeFights[fightIndex][2].timer = setTimeout(() => changePlayer(fightIndex, opIndex, room, true), 30000)
     }
