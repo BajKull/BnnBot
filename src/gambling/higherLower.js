@@ -56,13 +56,11 @@ const continueHigherLower = (msg) => {
   
     const prize = () => {
       if(currentStake === 0) 
-        activeGamblers[index].currentStake += Math.floor(startingAmount / 4)
-      else if(currentStake < Math.floor(startingAmount / 2))
-        activeGamblers[index].currentStake = Math.floor(startingAmount / 2)
+        activeGamblers[index].currentStake += Math.floor(startingAmount / 2)
       else if(currentStake === Math.floor(startingAmount / 2))
         activeGamblers[index].currentStake = startingAmount
       else
-        activeGamblers[index].currentStake *= 2
+        activeGamblers[index].currentStake += startingAmount
     }
   
     if(action === 'higher') {

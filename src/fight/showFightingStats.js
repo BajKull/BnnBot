@@ -19,7 +19,7 @@ const showFightingStats = (fightIndex, room, text = '') => {
     .setTitle(`${nick1}   |   ${nick2}`)
     .setDescription(`${at1} \u2003 \u2003 ${at2}\n${ar1} \u2006\u2003 \u2003 \u2003 ${ar2}\n${hp1} \u2006\u2003 \u2003 \u2003 ${hp2}`)
     .setColor([128, 0, 128])
-    .setFooter(`${nick1} as ${class1} VS ${nick2} as ${class2}`)
+    .setFooter(`${class1} VS ${class2}`)
 
   room.send(text, msg)
 }

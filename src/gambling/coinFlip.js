@@ -13,7 +13,7 @@ const coinFlip = (msg) => {
       msg.channel.send(alreadyGamblingMsg(gambler))
     else {
       new Promise((accepted, rejected) => {
-        if(side !== 'heads' || side !== 'tails') {
+        if(side === 'heads' || side === 'tails') {
           if(isNaN(amount))
             rejected(`${user}, that's not how you flip! Type bnn flip *side* *amount* to play, for example bnn flip heads 10.`)
           else if(amount <= 0)
